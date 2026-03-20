@@ -22,7 +22,7 @@
                 <li><a href="{% url 'index' %}">Inicio</a></li>
                 <li><a href="{% url 'servicios' %}" class="menu-active">Servicios</a></li>
                 <li><a href="#">Recomendación de productos</a></li>
-                <li><a href="#">Agenda tu hora</a></li>
+                <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
             </ul>
         </aside>
 
@@ -53,9 +53,9 @@
                         <a href="#" class="btn-agendar">Agendar hora</a>
                     </article>
                     <article class="servicio-card">
-                        <h3>Hidratación profunda</h3>
-                        <img src="{% static 'imagenes/hidratacion.png' %}" alt="Hidratacion profunda capilar">
-                        <p>Nutrición intensiva para devolver brillo y suavidad al cabello.</p>
+                        <h3>Peinado</h3>
+                        <img src="{% static 'imagenes/peinado.png' %}" alt="Servicio de peinado">
+                        <p>Peinados profesionales para cualquier ocasión y estilo.</p>
                         <a href="#" class="btn-agendar">Agendar hora</a>
                     </article>
                     <article class="servicio-card">
