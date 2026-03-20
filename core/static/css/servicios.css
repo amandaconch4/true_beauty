@@ -6,6 +6,11 @@
     --text: #3f3023;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -26,6 +31,11 @@ body {
     padding: 1rem 2rem;
     background-color: rgba(255, 249, 241, 0.92);
     border-bottom: 1px solid #ecdac4;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
 }
 
 .logo a {
@@ -33,6 +43,13 @@ body {
     color: var(--brown-700);
     letter-spacing: 1px;
     font-size: 2rem;
+}
+
+.layout {
+    display: block;
+    min-height: calc(100vh - 72px);
+    margin-top: 72px;
+    background-color: var(--cream-100);
 }
 
 .login-link {
@@ -50,26 +67,36 @@ body {
 }
 
 .layout {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    align-items: stretch;
-    min-height: calc(100dvh - 77px);
+    display: block;
+    min-height: 100vh;
+    background-color: var(--cream-100);
 }
 
 .sidebar {
     background-color: rgba(255, 249, 241, 0.88);
     border-right: 1px solid #ecdac4;
     padding: 2rem 1.2rem;
-    position: relative;
-    align-self: stretch;
-    height: auto;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 250px;
+    height: calc(100vh - 72px);
+    overflow-y: auto;
+    z-index: 10;
 }
 
 .main-content {
+    margin-left: 250px;
     min-width: 0;
-    min-height: calc(100dvh - 77px);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    background-color: rgba(255, 249, 241, 0.12);
+}
+
+.servicios-wrapper {
+    flex: 1;
+    padding: 2rem 8% 3rem;
 }
 
 .menu {
