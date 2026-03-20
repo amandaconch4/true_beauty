@@ -1,0 +1,55 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+</head>
+
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
+    </header>
+
+    <main class="login-wrapper">
+        <section class="login-card">
+            <h2>Registro</h2>
+
+            <form class="login-form" method="post" action="#">
+                {% csrf_token %}
+
+                <label for="nombre">Nombre</label>
+                <input id="nombre" name="nombre" type="text" required>
+
+                <label for="direccion">Dirección</label>
+                <input id="direccion" name="direccion" type="text" required>
+
+                <label for="celular">Celular</label>
+                <input id="celular" name="celular" type="text" required>
+
+                <label for="correo">Correo</label>
+                <input id="correo" name="correo" type="email" required>
+
+                <label for="usuario">Usuario</label>
+                <input id="usuario" name="usuario" type="text" required>
+
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password" required>
+
+                <button type="submit">Crear cuenta</button>
+            </form>
+
+            <div class="login-links">
+                <p>Si ya tienes una cuenta, <a href="{% url 'login' %}">inicia sesión</a>.</p>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
+

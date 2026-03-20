@@ -1,0 +1,52 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True Beauty | Peluquería</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+</head>
+
+<body>
+    <header class="top-header">
+        <h1 class="logo">True Beauty</h1>
+        <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'index' %}" class="menu-active">Inicio</a></li>
+                <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                <li><a href="#">Recomendación de productos</a></li>
+                <li><a href="#">Agenda tu hora</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="portada">
+                <section class="portada-content">
+                    <p class="description">VIVE LA EXPERIENCIA</p>
+                    <h2 class="brand-line">TRUE BEAUTY</h2>
+                </section>
+            </header>
+
+            <section class="intro">
+                <h3>Salón de belleza y peluquería en La Reina</h3>
+                <p>
+                    Nuestro salón ofrece una experiencia única en cuidado y belleza,
+                    realizando tratamientos capilares.
+                </p>
+            </section>
+
+            <footer class="footer-info">
+                <p><strong>Ubicación:</strong> José Zapiola 8054, La Reina</p>
+                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
