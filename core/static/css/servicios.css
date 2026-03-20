@@ -1,3 +1,4 @@
+/* Paleta de colores */
 :root {
     --cream-100: #f8f3eb;
     --cream-200: #efe4d4;
@@ -24,6 +25,7 @@ body {
     min-height: 100vh;
 }
 
+/* Estilos header */
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -45,13 +47,6 @@ body {
     font-size: 2rem;
 }
 
-.layout {
-    display: block;
-    min-height: calc(100vh - 72px);
-    margin-top: 72px;
-    background-color: var(--cream-100);
-}
-
 .login-link {
     text-decoration: none;
     color: var(--brown-700);
@@ -66,12 +61,15 @@ body {
     background-color: #f0dfcb;
 }
 
+/* Contenedor layout principal */
 .layout {
     display: block;
-    min-height: 100vh;
+    min-height: calc(100vh - 72px);
+    margin-top: 72px;
     background-color: var(--cream-100);
 }
 
+/* Estilos sidebar */
 .sidebar {
     background-color: rgba(255, 249, 241, 0.88);
     border-right: 1px solid #ecdac4;
@@ -92,11 +90,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     background-color: rgba(255, 249, 241, 0.12);
-}
-
-.servicios-wrapper {
-    flex: 1;
-    padding: 2rem 8% 3rem;
 }
 
 .menu {
@@ -124,6 +117,7 @@ body {
     border: 1px solid #d9c1a6;
 }
 
+/* Contenedor de servicios */
 .servicios-wrapper {
     flex: 1;
     padding: 2rem 8% 3rem;
@@ -140,6 +134,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
+/* Estilos servicios */
 .servicios-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -197,6 +192,7 @@ body {
     box-shadow: 0 6px 14px rgba(98, 72, 45, 0.22);
 }
 
+/* Estilos footer */
 .footer-info {
     margin-top: auto;
     padding: 1.2rem 8% 1.5rem;
@@ -215,6 +211,7 @@ body {
     margin-top: 0;
 }
 
+/* Estilos responsivos para dispositivos móviles */
 @media (max-width: 760px) {
     .top-header {
         padding: 0.9rem 1rem;
@@ -232,8 +229,13 @@ body {
     .sidebar {
         position: static;
         height: auto;
+        width: 100%;
         border-right: 0;
         border-bottom: 1px solid #ecdac4;
+    }
+
+    .main-content {
+        margin-left: 0;
     }
 
     .menu {

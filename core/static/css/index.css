@@ -1,3 +1,4 @@
+/* Paleta de colores */
 :root {
     --cream-100: #f8f3eb;
     --cream-200: #efe4d4;
@@ -25,6 +26,15 @@ body {
     min-height: 100vh;
 }
 
+/* Contenedor layout principal */
+.layout {
+    display: block;
+    min-height: calc(100vh - 72px);
+    margin-top: 72px;
+    background-color: var(--cream-100);
+}
+
+/* Estilos header */
 .top-header {
     display: flex;
     justify-content: space-between;
@@ -39,13 +49,7 @@ body {
     z-index: 20;
 }
 
-.layout {
-    display: block;
-    min-height: calc(100vh - 72px);
-    margin-top: 72px;
-    background-color: var(--cream-100);
-}
-
+/* Estilos sidebar */
 .sidebar {
     background-color: rgba(255, 249, 241, 0.88);
     border-right: 1px solid #ecdac4;
@@ -190,6 +194,7 @@ body {
     margin-top: 0;
 }
 
+/* Estilos responsivos para dispositivos móviles */
 @media (max-width: 760px) {
     .top-header {
         padding: 0.9rem 1rem;
@@ -207,8 +212,13 @@ body {
     .sidebar {
         position: static;
         height: auto;
+        width: 100%;
         border-right: 0;
         border-bottom: 1px solid #ecdac4;
+    }
+
+    .main-content {
+        margin-left: 0;
     }
 
     .menu {
