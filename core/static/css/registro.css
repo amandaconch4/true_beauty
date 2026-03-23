@@ -73,26 +73,139 @@ body {
     gap: 0.65rem;
 }
 
-.login-form label {
-    font-size: 0.95rem;
-    font-weight: 600;
+.form-group {
+    margin-bottom: 1.2rem;
 }
 
-.login-form input {
+.form-group label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--brown-700);
+}
+
+.form-group input {
+    width: 100%;
     border: 1px solid #d9c1a6;
     border-radius: 8px;
     padding: 0.65rem 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
 }
 
-.login-form button {
-    margin-top: 0.8rem;
+.form-group input:focus {
+    outline: none;
+    border-color: var(--beige-500);
+    box-shadow: 0 0 0 3px rgba(180, 141, 103, 0.1);
+}
+
+/* Estilos para contenedor de contraseña con ojo */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    flex: 1;
+    padding-right: 2.5rem; /* Espacio para el ojo */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    cursor: pointer;
+    color: #6f543d;
+    font-size: 1.1rem;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.password-toggle:hover {
+    color: #b48d67;
+}
+
+/* Estilos para requisitos de validación */
+.email-requisitos, .password-requisitos {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.email-requisitos ul, .password-requisitos ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.email-requisitos li, .password-requisitos li {
+    font-size: 0.85rem;
+    color: #d32f2f; /* Rojo por defecto */
+    margin-bottom: 0.25rem;
+    position: relative;
+    padding-left: 1.2rem;
+}
+
+.email-requisitos li::before, .password-requisitos li::before {
+    content: "✗"; /* X roja por defecto */
+    position: absolute;
+    left: 0;
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.email-requisitos li.valid, .password-requisitos li.valid {
+    color: #2e7d32; /* Verde cuando se cumple */
+}
+
+.email-requisitos li.valid::before, .password-requisitos li.valid::before {
+    content: "✓"; /* Tick verde cuando se cumple */
+    color: #2e7d32;
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+    color: #d32f2f;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Estilos para botones */
+.button-container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.submit-btn, .reset-btn {
+    flex: 1;
     border: 0;
-    background-color: var(--beige-500);
-    color: #fff;
     font-weight: 600;
     border-radius: 999px;
     padding: 0.72rem;
     cursor: pointer;
+    font-size: 1rem;
+}
+
+.submit-btn {
+    background-color: var(--beige-500);
+    color: #fff;
+}
+
+.submit-btn:hover {
+    background-color: #a67c52;
+}
+
+.reset-btn {
+    background-color: #fffaf2;
+    color: var(--brown-700);
+    border: 1px solid #e5cdb2;
+}
+
+.reset-btn:hover {
+    background-color: #f5ebe0;
 }
 
 .login-links {
@@ -104,6 +217,11 @@ body {
 .login-links a {
     color: var(--brown-700);
     font-weight: 600;
+    text-decoration: none;
+}
+
+.login-links a:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 760px) {
@@ -117,6 +235,14 @@ body {
 
     .login-card {
         padding: 1.5rem;
+    }
+
+    .button-container {
+        flex-direction: column;
+    }
+
+    .submit-btn, .reset-btn {
+        width: 100%;
     }
 }
 

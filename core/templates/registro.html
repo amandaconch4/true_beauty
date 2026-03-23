@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro | True Beauty</title>
     <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -20,31 +21,113 @@
         <section class="login-card">
             <h2>Registro</h2>
 
-            <form class="login-form" method="post" action="#">
+            <form class="login-form" method="post" action="{% url 'registro' %}" id="registroForm" novalidate>
                 {% csrf_token %}
 
-                <label for="usuario">Usuario</label>
-                <input id="usuario" name="usuario" type="text" required>
+                <div class="form-group">
+                    {{ usuario_form.nombre_completo.label_tag }}
+                    {{ usuario_form.nombre_completo }}
+                    <span class="error-message" id="nombre_completo-error"></span>
+                    <div class="email-requisitos" id="nombre-requisitos">
+                        <ul>
+                            <li id="req-nombre-length">Al menos 8 caracteres</li>
+                        </ul>
+                    </div>
+                    {% for error in usuario_form.nombre_completo.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="password">Contraseña</label>
-                <input id="password" name="password" type="password" required>
+                <div class="form-group">
+                    {{ usuario_form.username.label_tag }}
+                    {{ usuario_form.username }}
+                    <span class="error-message" id="nombre_usuario-error"></span>
+                    <div class="email-requisitos" id="username-requisitos">
+                        <ul>
+                            <li id="req-username-length">Entre 5 y 18 caracteres</li>
+                            <li id="req-username-sin-espacios">No debe contener espacios</li>
+                        </ul>
+                    </div>
+                    {% for error in usuario_form.username.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="nombre">Nombres</label>
-                <input id="nombre" name="nombre" type="text" required>
+                <div class="form-group">
+                    {{ usuario_form.email.label_tag }}
+                    {{ usuario_form.email }}
+                    <span class="error-message" id="correo-error"></span>
+                    <div class="email-requisitos" id="email-requisitos">
+                        <ul>
+                            <li id="req-email-formato">Debe tener formato usuario@dominio.com</li>
+                            <li id="req-email-sin-espacios">No debe contener espacios</li>
+                            <li id="req-email-dominio">Debe tener un dominio válido</li>
+                        </ul>
+                    </div>
+                    {% for error in usuario_form.email.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="apellido">Apellidos</label>
-                <input id="apellido" name="apellido" type="text" required>
+                <div class="form-group">
+                    {{ usuario_form.password1.label_tag }}
+                    <div class="password-wrapper">
+                        {{ usuario_form.password1 }}
+                        <button type="button" class="password-toggle" onclick="togglePassword('id_password1')">
+                            <i class="fas fa-eye" id="toggleIcon-id_password1"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" id="password1-error"></span>
+                    
+                    <div class="password-requisitos" id="password-requirements">
+                        <ul>
+                            <li id="req-length" class="invalid">Entre 6 y 18 caracteres</li>
+                            <li id="req-uppercase" class="invalid">Una letra mayúscula</li>
+                            <li id="req-number" class="invalid">Un número</li>
+                            <li id="req-special" class="invalid">Un carácter especial (.,!@#$%^&*)</li>
+                        </ul>
+                    </div>
+                    {% for error in usuario_form.password1.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="direccion">Dirección</label>
-                <input id="direccion" name="direccion" type="text">
+                <div class="form-group">
+                    {{ usuario_form.fecha_nacimiento.label_tag }}
+                    {{ usuario_form.fecha_nacimiento }}
+                    <span class="error-message" id="fecha_nacimiento-error"></span>
+                    {% for error in usuario_form.fecha_nacimiento.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="correo">Correo</label>
-                <input id="correo" name="correo" type="email" required>
+                <div class="form-group">
+                    {{ usuario_form.direccion.label_tag }}
+                    {{ usuario_form.direccion }}
+                    <span class="error-message" id="direccion-error"></span>
+                    {% for error in usuario_form.direccion.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <label for="celular">Celular</label>
-                <input id="celular" name="celular" type="text" required>
+                <div class="form-group">
+                    {{ usuario_form.celular.label_tag }}
+                    {{ usuario_form.celular }}
+                    <span class="error-message" id="celular-error"></span>
+                    <div class="email-requisitos" id="celular-requisitos">
+                        <ul>
+                            <li id="req-celular-digits">9 dígitos</li>
+                        </ul>
+                    </div>
+                    {% for error in usuario_form.celular.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
 
-                <button type="submit">Crear cuenta</button>
+                <div class="button-container">
+                    <button type="submit" class="submit-btn">Enviar</button>
+                    <button type="reset" class="reset-btn">Limpiar</button>
+                </div>
             </form>
 
             <div class="login-links">
@@ -52,6 +135,7 @@
             </div>
         </section>
     </main>
+    <script src="{% static 'js/validaciones_registro.js' %}"></script>
 </body>
 
 </html>
