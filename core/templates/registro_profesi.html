@@ -14,33 +14,33 @@
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
-        <a class="login-link" href="{% url 'login' %}">Iniciar sesi&oacute;n</a>
+        <a class="login-link" href="{% url 'profesional' %}">Iniciar sesi&oacute;n</a>
     </header>
 
     <main class="login-wrapper">
         <section class="login-card">
             <h2>Registro</h2>
 
-            <form class="login-form" method="post" action="{% url 'registro' %}" id="registroForm" novalidate>
+            <form class="login-form" method="post" action="{% url 'registro_profesional' %}" id="registroForm" novalidate>
                 {% csrf_token %}
 
                 <div class="form-group">
-                    {{ usuario_form.nombre_completo.label_tag }}
-                    {{ usuario_form.nombre_completo }}
+                    {{ profesional_form.nombre_completo.label_tag }}
+                    {{ profesional_form.nombre_completo }}
                     <span class="error-message" id="nombre_completo-error"></span>
                     <div class="email-requisitos" id="nombre-requisitos">
                         <ul>
                             <li id="req-nombre-length">Al menos 8 caracteres</li>
                         </ul>
                     </div>
-                    {% for error in usuario_form.nombre_completo.errors %}
+                    {% for error in profesional_form.nombre_completo.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.username.label_tag }}
-                    {{ usuario_form.username }}
+                    {{ profesional_form.username.label_tag }}
+                    {{ profesional_form.username }}
                     <span class="error-message" id="nombre_usuario-error"></span>
                     <div class="email-requisitos" id="username-requisitos">
                         <ul>
@@ -48,14 +48,14 @@
                             <li id="req-username-sin-espacios">No debe contener espacios</li>
                         </ul>
                     </div>
-                    {% for error in usuario_form.username.errors %}
+                    {% for error in profesional_form.username.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.email.label_tag }}
-                    {{ usuario_form.email }}
+                    {{ profesional_form.email.label_tag }}
+                    {{ profesional_form.email }}
                     <span class="error-message" id="correo-error"></span>
                     <div class="email-requisitos" id="email-requisitos">
                         <ul>
@@ -64,15 +64,15 @@
                             <li id="req-email-dominio">Debe tener un dominio v&aacute;lido</li>
                         </ul>
                     </div>
-                    {% for error in usuario_form.email.errors %}
+                    {% for error in profesional_form.email.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.password1.label_tag }}
+                    {{ profesional_form.password1.label_tag }}
                     <div class="password-wrapper">
-                        {{ usuario_form.password1 }}
+                        {{ profesional_form.password1 }}
                         <button type="button" class="password-toggle" onclick="togglePassword('id_password1')">
                             <i class="fas fa-eye" id="toggleIcon-id_password1"></i>
                         </button>
@@ -87,52 +87,61 @@
                             <li id="req-special" class="invalid">Un car&aacute;cter especial (.,!@#$%^&*)</li>
                         </ul>
                     </div>
-                    {% for error in usuario_form.password1.errors %}
+                    {% for error in profesional_form.password1.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.password2.label_tag }}
+                    {{ profesional_form.password2.label_tag }}
                     <div class="password-wrapper">
-                        {{ usuario_form.password2 }}
+                        {{ profesional_form.password2 }}
                         <button type="button" class="password-toggle" onclick="togglePassword('id_password2')">
                             <i class="fas fa-eye" id="toggleIcon-id_password2"></i>
                         </button>
                     </div>
-                    {% for error in usuario_form.password2.errors %}
+                    {% for error in profesional_form.password2.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.fecha_nacimiento.label_tag }}
-                    {{ usuario_form.fecha_nacimiento }}
+                    {{ profesional_form.salon.label_tag }}
+                    {{ profesional_form.salon }}
+                    <span class="error-message" id="salon-error"></span>
+                    {% for error in profesional_form.salon.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ profesional_form.fecha_nacimiento.label_tag }}
+                    {{ profesional_form.fecha_nacimiento }}
                     <span class="error-message" id="fecha_nacimiento-error"></span>
-                    {% for error in usuario_form.fecha_nacimiento.errors %}
+                    {% for error in profesional_form.fecha_nacimiento.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.direccion.label_tag }}
-                    {{ usuario_form.direccion }}
+                    {{ profesional_form.direccion.label_tag }}
+                    {{ profesional_form.direccion }}
                     <span class="error-message" id="direccion-error"></span>
-                    {% for error in usuario_form.direccion.errors %}
+                    {% for error in profesional_form.direccion.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    {{ usuario_form.celular.label_tag }}
-                    {{ usuario_form.celular }}
+                    {{ profesional_form.celular.label_tag }}
+                    {{ profesional_form.celular }}
                     <span class="error-message" id="celular-error"></span>
                     <div class="email-requisitos" id="celular-requisitos">
                         <ul>
                             <li id="req-celular-digits">9 d&iacute;gitos</li>
                         </ul>
                     </div>
-                    {% for error in usuario_form.celular.errors %}
+                    {% for error in profesional_form.celular.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
@@ -144,7 +153,7 @@
             </form>
 
             <div class="login-links">
-                <p>Si ya tienes una cuenta, <a href="{% url 'login' %}">inicia sesi&oacute;n</a>.</p>
+                <p>Si ya tienes una cuenta, <a href="{% url 'profesional' %}">inicia sesi&oacute;n</a>.</p>
             </div>
         </section>
     </main>
