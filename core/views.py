@@ -16,3 +16,6 @@ def registro_view(request):
 
 def agendar_view(request):
     return render(request, "agendar_hora.html")
+
+def profesional_view(request):
+    return render(request, "profesional.html")
