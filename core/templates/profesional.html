@@ -6,34 +6,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesi&oacute;n | True Beauty</title>
+    <title>Iniciar sesión | True Beauty</title>
     <link rel="stylesheet" href="{% static 'css/profesional.css' %}">
 </head>
 
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
-        <a class="login-link" href="{% url 'profesional' %}">Iniciar sesi&oacute;n</a>
+        <a class="login-link" href="{% url 'profesional' %}">Iniciar sesión</a>
     </header>
 
     <main class="login-wrapper">
         <section class="login-card">
-            <h2>Iniciar sesi&oacute;n</h2>
+            <h2>Iniciar sesión</h2>
             <form class="login-form" method="post" action="#">
                 {% csrf_token %}
                 <label for="username">Nombre de usuario</label>
                 <input id="username" name="username" type="text" required>
 
-                <label for="password">Contrase&ntilde;a</label>
+                <label for="password">Contraseña</label>
                 <input id="password" name="password" type="password" required>
 
-                <a class="forgot-link" href="#">&iquest;Olvidaste tu contrase&ntilde;a?</a>
+                <a class="forgot-link" href="#">¿Olvidaste tu contraseña?</a>
                 <button type="submit">Entrar</button>
             </form>
 
             <div class="login-links">
-                <p>&iquest;No tienes una cuenta? <a href="{% url 'registro_profesional' %}">Reg&iacute;strate</a></p>
-                <p class="empleado-acceso"><a href="{% url 'login' %}">Volver al acceso cliente</a></p>
+                <p>¿No tienes una cuenta? <a href="{% url 'registro_profesional' %}">Regístrate</a></p>
             </div>
         </section>
     </main>

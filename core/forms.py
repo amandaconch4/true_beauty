@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 import re
 
+from .models import PerfilUsuario
+
 Usuario = get_user_model()
 
 
@@ -54,6 +56,13 @@ class RegistroForm(UserCreationForm):
             "direccion",
             "celular",
         ]
+
+    perfil_fields = (
+        "nombre_completo",
+        "fecha_nacimiento",
+        "direccion",
+        "celular",
+    )
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -109,6 +118,22 @@ class RegistroForm(UserCreationForm):
                 )
         return password
 
+    def build_perfil_data(self):
+        return {field: self.cleaned_data[field] for field in self.perfil_fields}
+
+    def save(self, commit=True):
+        usuario = super().save(commit=False)
+        usuario.email = self.cleaned_data["email"]
+
+        if commit:
+            usuario.save()
+            PerfilUsuario.objects.update_or_create(
+                usuario=usuario,
+                defaults=self.build_perfil_data(),
+            )
+
+        return usuario
+
 
 class RegistroProfesionalForm(RegistroForm):
     salon = forms.CharField(
@@ -117,3 +142,11 @@ class RegistroProfesionalForm(RegistroForm):
         widget=forms.TextInput(attrs={"class": "form-control"}),
         help_text="Ingrese el nombre del sal\u00f3n o lugar de trabajo.",
     )
+
+    perfil_fields = RegistroForm.perfil_fields + ("salon",)
+
+    def build_perfil_data(self):
+        perfil_data = super().build_perfil_data()
+        perfil_data["salon"] = self.cleaned_data["salon"]
+        perfil_data["es_profesional"] = True
+        return perfil_data
