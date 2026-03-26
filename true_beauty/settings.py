@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'true_beauty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': '127.0.0.1:1521/ORCLPDB',
-        'USER': 'admin',
-        'PASSWORD': 'admin123',
+        'NAME': 'localhost:1521/orcl',
+        'USER': 'beauty',
+        'PASSWORD': 'beauty123',
     }
 }
 
@@ -118,3 +118,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'core.Usuario'

@@ -22,7 +22,7 @@ from core.views import (
     login_view,
     profesional_view,
     registro_profesional_view,
-    registro_view,
+    registro,
     servicios_view,
 )
 
@@ -30,7 +30,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('login/', login_view, name='login'),
     path('servicios/', servicios_view, name='servicios'),
-    path('registro/', registro_view, name='registro'),
+    path('registro/', registro, name='registro'),
     path('registro-profesional/', registro_profesional_view, name='registro_profesional'),
     path('agendar_hora/', agendar_view, name='agendar_hora'),
     path('admin/', admin.site.urls),

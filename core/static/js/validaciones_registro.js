@@ -87,7 +87,7 @@ function validarEdad(fecha) {
 
 function validarCelular(celular) {
     const formatoValido = /^\d{9}$/.test(celular);
-    celularError.textContent = formatoValido ? "" : "El numero de celular debe tener 9 digitos";
+    celularError.textContent = formatoValido ? "" : "El número de celular debe tener 9 dígitos";
     celularError.style.display = formatoValido ? "none" : "block";
     return formatoValido;
 }
@@ -97,13 +97,13 @@ function validarConfirmacionContrasena() {
     const confirmacion = password2Input?.value || "";
 
     if (!confirmacion.trim()) {
-        password2Error.textContent = "Repita la contrasena";
+        password2Error.textContent = "Repita la contraseña";
         password2Error.style.display = "block";
         return false;
     }
 
     if (password !== confirmacion) {
-        password2Error.textContent = "Las contrasenas no coinciden";
+        password2Error.textContent = "Las contraseñas no coinciden";
         password2Error.style.display = "block";
         return false;
     }
@@ -112,6 +112,8 @@ function validarConfirmacionContrasena() {
     password2Error.style.display = "none";
     return true;
 }
+
+// Eventos de validación en tiempo real
 
 nombreInput?.addEventListener("input", () => {
     validarNombreCompleto(nombreInput.value);
@@ -179,13 +181,13 @@ form?.addEventListener("submit", (e) => {
     }
 
     if (!emailInput.value.trim() || !validarEmail(emailInput.value)) {
-        emailError.textContent = "Revise los requisitos del correo electronico";
+        emailError.textContent = "Revise los requisitos del correo electrónico";
         emailError.style.display = "block";
         valido = false;
     }
 
     if (!passwordInput.value.trim() || !validarContrasena(passwordInput.value)) {
-        passwordError.textContent = "Revise los requisitos de la contrasena";
+        passwordError.textContent = "Revise los requisitos de la contraseña";
         passwordError.style.display = "block";
         valido = false;
     }
@@ -195,13 +197,13 @@ form?.addEventListener("submit", (e) => {
     }
 
     if (!fechaNacimiento.value || !validarEdad(fechaNacimiento.value)) {
-        fechaError.textContent = "Debe tener al menos 13 anos";
+        fechaError.textContent = "Debe tener al menos 13 años";
         fechaError.style.display = "block";
         valido = false;
     }
 
     if (!celularInput.value.trim() || !validarCelular(celularInput.value)) {
-        celularError.textContent = "Ingrese un numero de celular valido";
+        celularError.textContent = "Ingrese un número de celular válido";
         celularError.style.display = "block";
         valido = false;
     }

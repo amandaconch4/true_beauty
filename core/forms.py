@@ -1,152 +1,115 @@
 from django import forms
+from .models import Usuario, PerfilUsuario
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-from django.utils import timezone
 import re
 
-from .models import PerfilUsuario
+from .models import Usuario, PerfilUsuario
 
+# Formulario para crear un Usuario
 Usuario = get_user_model()
 
-
-class RegistroForm(UserCreationForm):
-    username = forms.CharField(
-        max_length=18,
-        min_length=5,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        help_text="El nombre de usuario debe tener entre 5 y 18 caracteres y no contener espacios.",
-    )
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={"class": "form-control"}),
-        help_text="Ingrese un correo electr\u00f3nico v\u00e1lido.",
-    )
-    nombre_completo = forms.CharField(
-        max_length=100,
-        min_length=8,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        help_text="Ingrese su nombre completo (m\u00ednimo 8 caracteres).",
-    )
-    fecha_nacimiento = forms.DateField(
-        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
-        help_text="Debe tener al menos 13 a\u00f1os.",
-    )
-    direccion = forms.CharField(
-        max_length=200,
-        required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        help_text="Direcci\u00f3n opcional, pero debe tener al menos 5 caracteres si se ingresa.",
-    )
-    celular = forms.CharField(
-        max_length=9,
-        min_length=9,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        help_text="Ingrese un n\u00famero de celular v\u00e1lido de 9 d\u00edgitos.",
-    )
-
+class UsuarioForm(UserCreationForm):
     class Meta:
         model = Usuario
-        fields = [
-            "username",
-            "email",
-            "nombre_completo",
-            "password1",
-            "password2",
-            "fecha_nacimiento",
-            "direccion",
-            "celular",
-        ]
+        fields = ['username', 'email', 'nombre_completo', 'password1', 'fecha_nacimiento', 'direccion', 'celular']
+        widgets = {
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'required': False}),
+        }
 
-    perfil_fields = (
-        "nombre_completo",
-        "fecha_nacimiento",
-        "direccion",
-        "celular",
-    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Hace los campos obligatorios excepto dirección
+        campos_obligatorios = ['username', 'email', 'nombre_completo', 'fecha_nacimiento', 'celular']
+        # Si es para editar, la contraseña NO es obligatoria
+        if self.instance and self.instance.pk:
+            self.fields['password1'].required = False
+        else:
+            campos_obligatorios.append('password1')
+        for field_name, field in self.fields.items():
+            if field_name in campos_obligatorios:
+                field.required = True
+                field.error_messages = {'required': f'El campo {field.label} es obligatorio'}
+            else:
+                field.required = False
 
     def clean_username(self):
-        username = self.cleaned_data.get("username")
-        if " " in username:
-            raise ValidationError("El nombre de usuario no puede contener espacios.")
+        username = self.cleaned_data.get('username')
+        if not username:
+            return username
+        qs = Usuario.objects.filter(username=username)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("El nombre de usuario ya está en uso.")
         return username
 
+    def clean_nombre_completo(self):
+        nombre_completo = self.cleaned_data.get('nombre_completo')
+        if not nombre_completo:
+            return nombre_completo
+        if len(nombre_completo.strip()) < 8:
+            raise forms.ValidationError("El nombre completo debe tener al menos 8 caracteres.")
+        return nombre_completo
+
     def clean_email(self):
-        email = self.cleaned_data.get("email")
-        if Usuario.objects.filter(email=email).exists():
-            raise ValidationError("Este correo electr\u00f3nico ya est\u00e1 registrado.")
+        email = self.cleaned_data.get('email')
+        if not email:
+            raise forms.ValidationError("El correo electrónico no puede estar vacío")
+        if " " in email:
+            raise forms.ValidationError("El correo electrónico no puede contener espacios.")
+        import re
+        dominio_valido = re.match(r'^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
+        if not dominio_valido:
+            raise forms.ValidationError("El correo electrónico debe tener un dominio válido.")
         return email
 
-    def clean_nombre_completo(self):
-        nombre = self.cleaned_data.get("nombre_completo")
-        if len(nombre.strip()) < 8:
-            raise ValidationError("El nombre completo debe tener al menos 8 caracteres.")
-        return nombre
-
-    def clean_fecha_nacimiento(self):
-        fecha = self.cleaned_data.get("fecha_nacimiento")
-        if fecha:
-            hoy = timezone.now().date()
-            edad = hoy.year - fecha.year - ((hoy.month, hoy.day) < (fecha.month, fecha.day))
-            if edad < 13:
-                raise ValidationError("Debe tener al menos 13 a\u00f1os.")
-        return fecha
-
-    def clean_direccion(self):
-        direccion = self.cleaned_data.get("direccion")
-        if direccion and len(direccion.strip()) < 5:
-            raise ValidationError("La direcci\u00f3n debe tener al menos 5 caracteres.")
-        return direccion
-
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+        # Si se quiere editar y no se ingresa una nueva contraseña, permite dejarlo vacío
+        if self.instance and self.instance.pk and not password1:
+            return None
+        if not password1:
+            raise forms.ValidationError("La contraseña no puede estar vacía")
+        if len(password1) < 6 or len(password1) > 18:
+            raise forms.ValidationError("La contraseña debe tener entre 6 y 18 caracteres.")
+        if not any(char.isupper() for char in password1):
+            raise forms.ValidationError("La contraseña debe contener al menos una mayúscula.")
+        if not any(char.isdigit() for char in password1):
+            raise forms.ValidationError("La contraseña debe contener al menos un número.")
+        if not any(char in "!@#$%^&*(),." for char in password1):
+            raise forms.ValidationError("La contraseña debe contener al menos un carácter especial.")
+        return password1
+    
     def clean_celular(self):
-        celular = self.cleaned_data.get("celular")
-        if not re.match(r"^\d{9}$", celular):
-            raise ValidationError("El n\u00famero de celular debe tener exactamente 9 d\u00edgitos.")
+        celular = self.cleaned_data.get('celular')
+        if not celular:
+            raise forms.ValidationError("El número de celular no puede estar vacío")
+        if not re.match(r'^\d{9}$', celular):
+            raise forms.ValidationError("El número de celular debe tener exactamente 9 dígitos.")
         return celular
 
-    def clean_password1(self):
-        password = self.cleaned_data.get("password1")
-        if password:
-            if len(password) < 8 or len(password) > 18:
-                raise ValidationError("La contrase\u00f1a debe tener entre 8 y 18 caracteres.")
-            if not re.search(r"[A-Z]", password):
-                raise ValidationError("La contrase\u00f1a debe contener al menos una may\u00fascula.")
-            if not re.search(r"\d", password):
-                raise ValidationError("La contrase\u00f1a debe contener al menos un n\u00famero.")
-            if not re.search(r"[.,!@#$%^&*]", password):
-                raise ValidationError(
-                    "La contrase\u00f1a debe contener al menos un car\u00e1cter especial (.,!@#$%^&*)."
-                )
-        return password
-
-    def build_perfil_data(self):
-        return {field: self.cleaned_data[field] for field in self.perfil_fields}
-
     def save(self, commit=True):
-        usuario = super().save(commit=False)
-        usuario.email = self.cleaned_data["email"]
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password1')
+
+        if password:
+            user.set_password(password)
+        else:
+            # Recupera el hash original directamente desde la base de datos
+            if user.pk:
+                from core.models import Usuario
+                original = Usuario.objects.get(pk=user.pk)
+                user.password = original.password
 
         if commit:
-            usuario.save()
-            PerfilUsuario.objects.update_or_create(
-                usuario=usuario,
-                defaults=self.build_perfil_data(),
-            )
+            user.save()
+        return user
+    
+# Formulario para crear un perfil de usuario (rol)
+class PerfilUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = PerfilUsuario
+        fields = ['rol']
 
-        return usuario
-
-
-class RegistroProfesionalForm(RegistroForm):
-    salon = forms.CharField(
-        max_length=120,
-        required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-        help_text="Ingrese el nombre del sal\u00f3n o lugar de trabajo.",
-    )
-
-    perfil_fields = RegistroForm.perfil_fields + ("salon",)
-
-    def build_perfil_data(self):
-        perfil_data = super().build_perfil_data()
-        perfil_data["salon"] = self.cleaned_data["salon"]
-        perfil_data["es_profesional"] = True
-        return perfil_data

@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
-
-from .forms import RegistroForm, RegistroProfesionalForm
+from .forms import UsuarioForm
+from django.contrib import messages
+from .models import PerfilUsuario
 
 
 def index(request):
@@ -15,12 +16,29 @@ def servicios_view(request):
     return render(request, "servicios.html")
 
 
-def registro_view(request):
-    form = RegistroForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("login")
-    return render(request, "registro.html", {"usuario_form": form})
+def registro(request):
+    if request.method == 'POST':
+        usuario_form = UsuarioForm(request.POST)
+        if usuario_form.is_valid():
+            usuario = usuario_form.save(commit=False)
+            # Asigna el perfil de usuario normal (rol='usuario')
+            perfil_usuario = PerfilUsuario.objects.filter(rol='usuario').first()
+            if perfil_usuario is None:
+                perfil_usuario = PerfilUsuario.objects.create(rol='usuario')
+            usuario.perfil = perfil_usuario
+            usuario.save()
+            messages.success(request, "¡Registro exitoso! Ya puedes iniciar sesión.")
+            return redirect('login')
+        else:
+            # Limpia mensajes anteriores de error
+            storage = messages.get_messages(request)
+            storage.used = True
+            messages.error(request, "Error en el formulario. Por favor, revisa los datos.")
+    else:
+        usuario_form = UsuarioForm()
+    return render(request, 'registro.html', {
+        'usuario_form': usuario_form
+    })
 
 
 def agendar_view(request):
