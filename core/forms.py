@@ -106,8 +106,8 @@ class RegistroForm(UserCreationForm):
     def clean_password1(self):
         password = self.cleaned_data.get("password1")
         if password:
-            if len(password) < 6 or len(password) > 18:
-                raise ValidationError("La contrase\u00f1a debe tener entre 6 y 18 caracteres.")
+            if len(password) < 8 or len(password) > 18:
+                raise ValidationError("La contrase\u00f1a debe tener entre 8 y 18 caracteres.")
             if not re.search(r"[A-Z]", password):
                 raise ValidationError("La contrase\u00f1a debe contener al menos una may\u00fascula.")
             if not re.search(r"\d", password):

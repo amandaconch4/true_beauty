@@ -24,6 +24,14 @@
             <form class="login-form" method="post" action="{% url 'registro_profesional' %}" id="registroForm" novalidate>
                 {% csrf_token %}
 
+                {% if profesional_form.non_field_errors %}
+                    <div class="form-group">
+                        {% for error in profesional_form.non_field_errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <div class="form-group">
                     {{ profesional_form.nombre_completo.label_tag }}
                     {{ profesional_form.nombre_completo }}
@@ -81,7 +89,7 @@
 
                     <div class="password-requisitos" id="password-requirements">
                         <ul>
-                            <li id="req-length" class="invalid">Entre 6 y 18 caracteres</li>
+                            <li id="req-length" class="invalid">Entre 8 y 18 caracteres</li>
                             <li id="req-uppercase" class="invalid">Una letra may&uacute;scula</li>
                             <li id="req-number" class="invalid">Un n&uacute;mero</li>
                             <li id="req-special" class="invalid">Un car&aacute;cter especial (.,!@#$%^&*)</li>
@@ -100,6 +108,7 @@
                             <i class="fas fa-eye" id="toggleIcon-id_password2"></i>
                         </button>
                     </div>
+                    <span class="error-message" id="password2-error"></span>
                     {% for error in profesional_form.password2.errors %}
                         <span class="error-message">{{ error }}</span>
                     {% endfor %}

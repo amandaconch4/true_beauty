@@ -5,6 +5,7 @@ const nombreInput = document.getElementById("id_nombre_completo");
 const usernameInput = document.getElementById("id_username");
 const emailInput = document.getElementById("id_email");
 const passwordInput = document.getElementById("id_password1");
+const password2Input = document.getElementById("id_password2");
 const fechaNacimiento = document.getElementById("id_fecha_nacimiento");
 const direccionInput = document.getElementById("id_direccion");
 const celularInput = document.getElementById("id_celular");
@@ -14,6 +15,7 @@ const nombreError = document.getElementById("nombre_completo-error");
 const usernameError = document.getElementById("nombre_usuario-error");
 const emailError = document.getElementById("correo-error");
 const passwordError = document.getElementById("password1-error");
+const password2Error = document.getElementById("password2-error");
 const fechaError = document.getElementById("fecha_nacimiento-error");
 const direccionError = document.getElementById("direccion-error");
 const celularError = document.getElementById("celular-error");
@@ -47,7 +49,7 @@ function validarUsername(username) {
 }
 
 function validarContrasena(contrasena) {
-    const longitud = contrasena.length >= 6 && contrasena.length <= 18;
+    const longitud = contrasena.length >= 8 && contrasena.length <= 18;
     const mayuscula = /[A-Z]/.test(contrasena);
     const numero = /\d/.test(contrasena);
     const especial = /[.,!@#$%^&*]/.test(contrasena);
@@ -90,6 +92,27 @@ function validarCelular(celular) {
     return formatoValido;
 }
 
+function validarConfirmacionContrasena() {
+    const password = passwordInput?.value || "";
+    const confirmacion = password2Input?.value || "";
+
+    if (!confirmacion.trim()) {
+        password2Error.textContent = "Repita la contrasena";
+        password2Error.style.display = "block";
+        return false;
+    }
+
+    if (password !== confirmacion) {
+        password2Error.textContent = "Las contrasenas no coinciden";
+        password2Error.style.display = "block";
+        return false;
+    }
+
+    password2Error.textContent = "";
+    password2Error.style.display = "none";
+    return true;
+}
+
 nombreInput?.addEventListener("input", () => {
     validarNombreCompleto(nombreInput.value);
     nombreError.textContent = "";
@@ -103,6 +126,13 @@ usernameInput?.addEventListener("input", () => {
 passwordInput?.addEventListener("input", () => {
     validarContrasena(passwordInput.value);
     passwordError.textContent = "";
+    if (password2Input?.value) {
+        validarConfirmacionContrasena();
+    }
+});
+
+password2Input?.addEventListener("input", () => {
+    validarConfirmacionContrasena();
 });
 
 emailInput?.addEventListener("input", () => {
@@ -157,6 +187,10 @@ form?.addEventListener("submit", (e) => {
     if (!passwordInput.value.trim() || !validarContrasena(passwordInput.value)) {
         passwordError.textContent = "Revise los requisitos de la contrasena";
         passwordError.style.display = "block";
+        valido = false;
+    }
+
+    if (!validarConfirmacionContrasena()) {
         valido = false;
     }
 
