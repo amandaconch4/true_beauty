@@ -67,12 +67,6 @@ body {
     margin-bottom: 1.2rem;
 }
 
-.login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-}
-
 .form-group {
     margin-bottom: 1.2rem;
 }
@@ -128,48 +122,63 @@ body {
 }
 
 /* Estilos para requisitos de validación */
-.email-requisitos, .password-requisitos {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.email-requisitos ul, .password-requisitos ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.email-requisitos li, .password-requisitos li {
-    font-size: 0.85rem;
-    color: #d32f2f; /* Rojo por defecto */
-    margin-bottom: 0.25rem;
-    position: relative;
-    padding-left: 1.2rem;
-}
-
-.email-requisitos li::before, .password-requisitos li::before {
-    content: "✗"; /* X roja por defecto */
-    position: absolute;
-    left: 0;
-    color: #d32f2f;
-    font-weight: bold;
-}
-
-.email-requisitos li.valid, .password-requisitos li.valid {
-    color: #2e7d32; /* Verde cuando se cumple */
-}
-
-.email-requisitos li.valid::before, .password-requisitos li.valid::before {
-    content: "✓"; /* Tick verde cuando se cumple */
-    color: #2e7d32;
-}
-
-/* Estilos para mensajes de error */
 .error-message {
-    color: #d32f2f;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
+    color: #ff4444;
+    font-size: 14px;
+    margin-top: 5px;
     display: block;
+}
+
+.password-requisitos, .email-requisitos {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.password-requisitos p, .email-requisitos p {
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.password-requisitos ul, .email-requisitos ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 5px;
+}
+
+.password-requisitos li, .email-requisitos li {
+    margin: 3px 0;
+    padding-left: 25px;
+    position: relative;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.password-requisitos li::before,
+.email-requisitos li::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-style: normal;
+    content: "\f057";
+}
+
+.password-requisitos li.valido::before,
+.email-requisitos li.valido::before {
+    content: "\f058";
+}
+
+.password-requisitos li.valido, .email-requisitos li.valido {
+    color: #28a745;
+}
+
+.password-requisitos li.invalid, .email-requisitos li.invalid {
+    color: #dc3545;
+}
+
+.valid {
+    color: #28a745;
+}
+
+.invalid {
+    color: #dc3545;
 }
 
 /* Estilos para botones */

@@ -1,21 +1,17 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar sesión | True Beauty</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
-
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
         <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
     </header>
-
     <main class="login-wrapper">
         <section class="login-card">
             <h2>Iniciar sesión</h2>
@@ -23,20 +19,39 @@
                 {% csrf_token %}
                 <label for="username">Nombre de usuario</label>
                 <input id="username" name="username" type="text" required>
-
                 <label for="password">Contraseña</label>
                 <input id="password" name="password" type="password" required>
-
                 <a class="forgot-link" href="#">¿Olvidaste tu contraseña?</a>
                 <button type="submit">Entrar</button>
             </form>
-
             <div class="login-links">
                 <p>¿No tienes una cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
                 <p class="empleado-acceso"><a href="{% url 'profesional' %}">Acceso profesional</a></p>
             </div>
         </section>
     </main>
+    {# Modal de mensajes de éxito (por ejemplo, registro exitoso) #}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "success" %}
+                <div id="success-modal" class="modal-overlay">
+                    <div class="modal-box">
+                        <h3>Registro exitoso</h3>
+                        <p>{{ message }}</p>
+                        <button id="btn-ok" type="button">OK</button>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <script>
+        const btnOk = document.getElementById("btn-ok");
+        const modal = document.getElementById("success-modal");
+        if (btnOk && modal) {
+            btnOk.addEventListener("click", function () {
+                modal.style.display = "none";
+            });
+        }
+    </script>
 </body>
-
 </html>
