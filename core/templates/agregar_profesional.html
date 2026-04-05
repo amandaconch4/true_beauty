@@ -1,0 +1,204 @@
+{% load static %}
+{% url "profesional" as profesional_url %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Profesional | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/agregar_profesional.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Panel Profesional</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="{{ profesional_url }}" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" data-section="clientes"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="#" data-section="agenda"><i class="fas fa-warehouse"></i> Agenda</a></li>
+                <li><a href="#" data-section="servicios"><i class="fas fa-shopping-cart"></i> Servicios</a></li>
+                <li><a href="#" class="active" data-section="usuarios"><i class="fas fa-user-shield"></i> Usuarios admin</a></li>
+            </ul>
+        </div>
+
+        <div class="main-panel">
+            <div class="content-header">
+                <h1 class="content-title">Agregar Nuevo Profesional</h1>
+                <a class="logout-btn" href="{{ profesional_url }}">Cancelar</a>
+            </div>
+
+            <div class="main-content">
+                <div class="content-section" id="agregar-profesi-section">
+                    <div class="section-container">
+                        <div class="section-header">
+                            <h2>Agregar Nuevo Profesional</h2>
+                        </div>
+
+                        <div class="section-content">
+                            <form method="post" id="registroForm" class="admin-form" novalidate>
+                                {% csrf_token %}
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        {{ usuario_form.nombre_completo.label_tag }}
+                                        {{ usuario_form.nombre_completo }}
+                                        <span class="error-message" id="nombre_completo-error"></span>
+                                        <div class="email-requisitos" id="nombre-requisitos">
+                                            <ul>
+                                                <li id="req-nombre-length">Al menos 8 caracteres</li>
+                                            </ul>
+                                        </div>
+                                        {% for error in usuario_form.nombre_completo.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        {{ usuario_form.username.label_tag }}
+                                        {{ usuario_form.username }}
+                                        <span class="error-message" id="nombre_usuario-error"></span>
+                                        <div class="password-requisitos" id="username-requisitos">
+                                            <ul>
+                                                <li id="req-username-length" class="invalid">Entre 5 y 18 caracteres</li>
+                                                <li id="req-username-sin-espacios" class="invalid">Sin espacios</li>
+                                            </ul>
+                                        </div>
+                                        {% for error in usuario_form.username.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        {{ usuario_form.email.label_tag }}
+                                        {{ usuario_form.email }}
+                                        <span class="error-message" id="correo-error"></span>
+                                        <div class="email-requisitos" id="email-requisitos">
+                                            <ul>
+                                                <li id="req-email-formato">Debe tener formato usuario@dominio.com</li>
+                                                <li id="req-email-sin-espacios">No debe contener espacios</li>
+                                                <li id="req-email-dominio">Debe tener un dominio valido</li>
+                                            </ul>
+                                        </div>
+                                        {% for error in usuario_form.email.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        {{ usuario_form.password1.label_tag }}
+                                        <div class="password-wrapper">
+                                            {{ usuario_form.password1 }}
+                                            <button type="button" class="password-toggle" onclick="togglePassword('id_password1')">
+                                                <i class="fas fa-eye" id="toggleIcon-id_password1"></i>
+                                            </button>
+                                        </div>
+                                        <span class="error-message" id="password1-error"></span>
+                                        <div class="password-requisitos" id="password-requirements">
+                                            <ul>
+                                                <li id="req-length" class="invalid">Entre 6 y 18 caracteres</li>
+                                                <li id="req-uppercase" class="invalid">Una letra mayuscula</li>
+                                                <li id="req-number" class="invalid">Un numero</li>
+                                                <li id="req-special" class="invalid">Un caracter especial (.,!@#$%^&*)</li>
+                                            </ul>
+                                        </div>
+                                        {% for error in usuario_form.password1.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        {{ usuario_form.password2.label_tag }}
+                                        <div class="password-wrapper">
+                                            {{ usuario_form.password2 }}
+                                            <button type="button" class="password-toggle" onclick="togglePassword('id_password2')">
+                                                <i class="fas fa-eye" id="toggleIcon-id_password2"></i>
+                                            </button>
+                                        </div>
+                                        <span class="error-message" id="password2-error"></span>
+                                        {% for error in usuario_form.password2.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        {{ usuario_form.fecha_nacimiento.label_tag }}
+                                        {{ usuario_form.fecha_nacimiento }}
+                                        <span class="error-message" id="fecha_nacimiento-error"></span>
+                                        {% for error in usuario_form.fecha_nacimiento.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        {{ usuario_form.direccion.label_tag }}
+                                        {{ usuario_form.direccion }}
+                                        <span class="error-message" id="direccion-error"></span>
+                                        {% for error in usuario_form.direccion.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        {{ usuario_form.celular.label_tag }}
+                                        {{ usuario_form.celular }}
+                                        <span class="error-message" id="celular-error"></span>
+                                        <div class="email-requisitos" id="celular-requisitos">
+                                            <ul>
+                                                <li id="req-celular-digits">9 digitos</li>
+                                            </ul>
+                                        </div>
+                                        {% for error in usuario_form.celular.errors %}
+                                            <span class="error-message">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                {% if messages %}
+                                    <div class="messages">
+                                        {% for message in messages %}
+                                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <div class="button-container">
+                                    <button type="submit" class="submit-btn">Crear Profesional</button>
+                                    <button type="reset" class="reset-btn">Limpiar</button>
+                                </div>
+                            </form>
+
+                            <script>
+                                function togglePassword(inputId) {
+                                    const input = document.getElementById(inputId);
+                                    const icon = document.getElementById(`toggleIcon-${inputId}`);
+
+                                    if (input.type === 'password') {
+                                        input.type = 'text';
+                                        icon.classList.remove('fa-eye');
+                                        icon.classList.add('fa-eye-slash');
+                                    } else {
+                                        input.type = 'password';
+                                        icon.classList.remove('fa-eye-slash');
+                                        icon.classList.add('fa-eye');
+                                    }
+                                }
+                            </script>
+                            <script src="{% static 'js/validaciones_registro.js' %}"></script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

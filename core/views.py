@@ -1,6 +1,7 @@
-from django.shortcuts import redirect, render
-from .forms import UsuarioForm
 from django.contrib import messages
+from django.shortcuts import redirect, render
+
+from .forms import UsuarioForm
 from .models import PerfilUsuario
 
 
@@ -21,24 +22,19 @@ def registro(request):
         usuario_form = UsuarioForm(request.POST)
         if usuario_form.is_valid():
             usuario = usuario_form.save(commit=False)
-            # Asigna el perfil de usuario normal (rol='usuario')
-            perfil_usuario = PerfilUsuario.objects.filter(rol='usuario').first()
-            if perfil_usuario is None:
-                perfil_usuario = PerfilUsuario.objects.create(rol='usuario')
+            perfil_usuario, _ = PerfilUsuario.objects.get_or_create(rol='usuario')
             usuario.perfil = perfil_usuario
             usuario.save()
-            messages.success(request, "¡Registro exitoso! Ya puedes iniciar sesión.")
+            messages.success(request, "Registro exitoso. Ya puedes iniciar sesion.")
             return redirect('login')
-        else:
-            # Limpia mensajes anteriores de error
-            storage = messages.get_messages(request)
-            storage.used = True
-            messages.error(request, "Error en el formulario. Por favor, revisa los datos.")
+
+        storage = messages.get_messages(request)
+        storage.used = True
+        messages.error(request, "Error en el formulario. Por favor, revisa los datos.")
     else:
         usuario_form = UsuarioForm()
-    return render(request, 'registro.html', {
-        'usuario_form': usuario_form
-    })
+
+    return render(request, 'registro.html', {'usuario_form': usuario_form})
 
 
 def agendar_view(request):
@@ -50,8 +46,20 @@ def profesional_view(request):
 
 
 def registro_profesional_view(request):
-    form = RegistroProfesionalForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("profesional")
-    return render(request, "registro_profesi.html", {"profesional_form": form})
+    if request.method == 'POST':
+        usuario_form = UsuarioForm(request.POST)
+        if usuario_form.is_valid():
+            usuario = usuario_form.save(commit=False)
+            perfil_profesional, _ = PerfilUsuario.objects.get_or_create(rol='profesional')
+            usuario.perfil = perfil_profesional
+            usuario.save()
+            messages.success(request, "Registro profesional exitoso. Ya puedes iniciar sesion.")
+            return redirect('profesional')
+
+        storage = messages.get_messages(request)
+        storage.used = True
+        messages.error(request, "Error en el formulario. Por favor, revisa los datos.")
+    else:
+        usuario_form = UsuarioForm()
+
+    return render(request, 'agregar_profesional.html', {'usuario_form': usuario_form})

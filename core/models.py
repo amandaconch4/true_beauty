@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -30,9 +28,9 @@ class Usuario(AbstractUser):
     REQUIRED_FIELDS = ['email', 'nombre_completo', 'fecha_nacimiento', 'celular']
     
     def __str__(self):
-        return f"{self.username} ({self.get_rol_display() if self.perfil else 'Sin rol'})"
+        return f"{self.username} ({self.get_nombre_rol()})"
     
-    def get_rol_display(self):
+    def get_nombre_rol(self):
         return self.perfil.get_rol_display() if self.perfil else 'Sin rol'
 
 class FichaCapilar(models.Model):

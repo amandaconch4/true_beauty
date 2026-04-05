@@ -35,5 +35,6 @@ urlpatterns = [
     path('agendar_hora/', agendar_view, name='agendar_hora'),
     path('admin/', admin.site.urls),
     path('profesional/', profesional_view, name='profesional'),
+    path('panel-profesional/', profesional_view, name='panel_profesional'),
 ]
 
