@@ -24,6 +24,7 @@ from core.views import (
     registro_profesional_view,
     registro,
     servicios_view,
+    panel_profesional,
 )
 
 urlpatterns = [
@@ -35,6 +36,8 @@ urlpatterns = [
     path('agendar_hora/', agendar_view, name='agendar_hora'),
     path('admin/', admin.site.urls),
     path('profesional/', profesional_view, name='profesional'),
-    path('panel-profesional/', profesional_view, name='panel_profesional'),
+    path('panel_profesional/', panel_profesional, name='panel_profesional'),
+    path('panel-profesional/', panel_profesional),
+    path('cambiar-password/', profesional_view, name='cambiar_password'),
 ]
 

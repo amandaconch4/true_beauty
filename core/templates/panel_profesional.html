@@ -1,0 +1,218 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Profesional | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <a class="header-link" href="{% url 'profesional' %}">Volver</a>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Profesional</h2>
+                    <p class="sidebar-user">{{ nombre_profesional }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="#resumen" class="menu-active">Dashboard</a></li>
+                        <li><a href="#citas">Citas</a></li>
+                        <li><a href="#clientes">Clientes</a></li>
+                        <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="panel-content">
+                <section class="panel-hero" id="resumen">
+                    <article class="hero-card">
+                        <span class="eyebrow">Panel profesional</span>
+                        <h2 class="panel-title">Bienvenida, {{ nombre_profesional }}</h2>
+                        <div class="hero-meta">
+                            <span class="meta-pill">Clientes registrados: {{ clientes|length }}</span>
+                            <span class="meta-pill">Citas de hoy: {{ citas_hoy|length }}</span>
+                        </div>
+                    </article>
+
+                    <aside class="side-card">
+                        <div class="quick-actions">
+                            <button type="button" class="action-btn">Agregar nuevo cliente</button>
+                        </div>
+                    </aside>
+                </section>
+
+                <section class="stats-grid">
+                    <article class="stat-card">
+                        <p class="stat-label">Clientes</p>
+                        <p class="stat-value">{{ clientes|length }}</p>
+                        <p class="stat-helper">Personas con historial disponible</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="stat-label">Citas hoy</p>
+                        <p class="stat-value">{{ citas_hoy|length }}</p>
+                        <p class="stat-helper">Atenciones programadas para hoy</p>
+                    </article>
+                    <article class="stat-card">
+                        <p class="stat-label">Ultima actualizacion</p>
+                        <p class="stat-value">Hoy</p>
+                        <p class="stat-helper">Informacion cargada en el panel</p>
+                    </article>
+                </section>
+
+                <section class="panel-grid" id="citas">
+                    <article class="section-card">
+                        <div class="section-header">
+                            <div>
+                                <h2>Citas del dia</h2>
+                                <p>Revisa las atenciones programadas y su estado actual.</p>
+                            </div>
+                        </div>
+
+                        {% if citas_hoy %}
+                            <div class="table-wrapper">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Fecha</th>
+                                            <th>Hora</th>
+                                            <th>Servicio</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cita in citas_hoy %}
+                                            <tr>
+                                                <td>{{ cita.cliente.nombre_completo }}</td>
+                                                <td>{{ cita.fecha }}</td>
+                                                <td>{{ cita.hora }}</td>
+                                                <td>{{ cita.servicio }}</td>
+                                                <td>
+                                                    <span class="badge badge-warning">{{ cita.get_estado_display }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <h3>No hay citas registradas para hoy</h3>
+                                <p>Cuando existan atenciones agendadas, apareceran aqui automaticamente.</p>
+                            </div>
+                        {% endif %}
+                    </article>
+
+                    <aside class="section-card">
+                        <div class="section-header">
+                            <div>
+                                <h2>Actividad</h2>
+                                <p>Accesos utiles para tu jornada.</p>
+                            </div>
+                        </div>
+
+                        <div class="appointment-list">
+                            <div class="appointment-card">
+                                <h3>Clientes activos</h3>
+                                <p>Tienes {{ clientes|length }} clientes visibles en el panel.</p>
+                            </div>
+                            <div class="appointment-card">
+                                <h3>Agenda del dia</h3>
+                                <p>Hay {{ citas_hoy|length }} citas cargadas actualmente.</p>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+
+                <section class="section-card" id="clientes">
+                    <div class="section-header">
+                        <div>
+                            <h2>Clientes</h2>
+                            <p>Busca por nombre y revisa el ultimo tratamiento registrado.</p>
+                        </div>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="buscadorClientes" placeholder="Buscar cliente por nombre">
+                    </div>
+
+                    {% if clientes %}
+                        <div class="table-wrapper">
+                            <table id="tablaClientes">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre cliente</th>
+                                        <th>Ultimo tratamiento</th>
+                                        <th>Fecha</th>
+                                        <th>Historial</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cliente in clientes %}
+                                        <tr>
+                                            <td>{{ cliente.nombre_completo }}</td>
+                                            <td>{{ cliente.ultimo_tratamiento }}</td>
+                                            <td>{{ cliente.fecha }}</td>
+                                            <td>
+                                                <button type="button" class="secondary-btn">Ver historial</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <h3>No hay clientes registrados</h3>
+                            <p>Cuando registres clientes o tratamientos, esta seccion mostrara su informacion.</p>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <footer class="panel-footer">
+                    <p>True Beauty profesional</p>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const buscador = document.getElementById("buscadorClientes");
+        const filasClientes = document.querySelectorAll("#tablaClientes tbody tr");
+
+        if (buscador && filasClientes.length) {
+            buscador.addEventListener("keyup", function () {
+                const filtro = this.value.toLowerCase().trim();
+
+                filasClientes.forEach((fila) => {
+                    const nombre = fila.cells[0].textContent.toLowerCase();
+                    fila.style.display = nombre.includes(filtro) ? "" : "none";
+                });
+            });
+        }
+    </script>
+</body>
+</html>

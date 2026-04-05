@@ -88,3 +88,26 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
     
+class Cita(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('realizada', 'Realizada'),
+        ('cancelada', 'Cancelada'),
+    ]
+
+    cliente = models.ForeignKey(
+        Usuario,on_delete=models.CASCADE,related_name='citas_cliente')
+
+    profesional = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='citas_profesional'
+    )
+
+    servicio = models.CharField(max_length=100)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+
+    def __str__(self):
+        return f"{self.cliente.nombre_completo} - {self.fecha} {self.hora}"
