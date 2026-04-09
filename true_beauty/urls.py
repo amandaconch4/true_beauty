@@ -20,6 +20,7 @@ from core.views import (
     agendar_view,
     index,
     login_view,
+    logout_view,
     profesional_view,
     registro_profesional_view,
     registro,
@@ -30,6 +31,7 @@ from core.views import (
 urlpatterns = [
     path('', index, name='index'),
     path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
     path('servicios/', servicios_view, name='servicios'),
     path('registro/', registro, name='registro'),
     path('registro-profesional/', registro_profesional_view, name='registro_profesional'),

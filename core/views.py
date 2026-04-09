@@ -1,9 +1,10 @@
 from datetime import date
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from .forms import UsuarioForm
 from .models import Cita, PerfilUsuario, Tratamiento, Usuario
@@ -14,7 +15,27 @@ def index(request):
 
 
 def login_view(request):
-    return render(request, "login.html")
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        usuario = authenticate(request, username=username, password=password)
+        if usuario is None:
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+            return render(request, 'login.html')
+        login(request, usuario)
+        messages.success(
+            request,
+            f'Bienvenid@ {usuario.nombre_completo}',
+            extra_tags='welcome',
+        )
+        return redirect('index')
+    return render(request, 'login.html')
+
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect('index')
 
 
 def servicios_view(request):
