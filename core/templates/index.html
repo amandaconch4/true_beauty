@@ -12,8 +12,27 @@
 
 <body>
     <header class="top-header">
-        <h1 class="logo">True Beauty</h1>
-        <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
+        <div class="top-header__bar">
+            <h1 class="logo">True Beauty</h1>
+            <div class="top-header__center" aria-live="polite">
+                {% for message in messages %}
+                    {% if 'welcome' in message.tags %}
+                        <div class="welcome-header-msg" data-welcome-timeout="5000" role="status">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+                <div class="top-header__actions">
+                    <a class="login-link" href="#" onclick="return false;">Mi Perfil</a>
+                    <form method="post" action="{% url 'logout' %}" class="header-logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="login-link">Cerrar sesión</button>
+                    </form>
+                </div>
+            {% else %}
+                <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
+            {% endif %}
+        </div>
     </header>
 
     <div class="layout">
@@ -48,5 +67,29 @@
             </footer>
         </div>
     </div>
+    <script>
+        (function () {
+            var el = document.querySelector(".welcome-header-msg[data-welcome-timeout]");
+            if (!el) return;
+            var ms = parseInt(el.getAttribute("data-welcome-timeout"), 10) || 5000;
+            var removed = false;
+            function removeBanner() {
+                if (removed) return;
+                removed = true;
+                el.remove();
+            }
+            setTimeout(function () {
+                el.classList.add("welcome-header-msg--hide");
+                el.addEventListener(
+                    "transitionend",
+                    function (e) {
+                        if (e.propertyName === "opacity") removeBanner();
+                    },
+                    { once: true }
+                );
+                window.setTimeout(removeBanner, 500);
+            }, ms);
+        })();
+    </script>
 </body>
 </html>

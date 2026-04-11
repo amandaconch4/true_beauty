@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'true_beauty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'localhost:1521/ORCLPDB',
-        'USER': 'admin',
-        'PASSWORD': 'admin123',
+        'NAME': 'localhost:1521/orcl',
+        'USER': 'beauty',
+        'PASSWORD': 'beauty123',
     }
 }
 
@@ -117,6 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
+<<<<<<< HEAD
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'core.Usuario'
@@ -125,3 +126,8 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = 'no-reply@truebeauty.local'
+=======
+STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'core.Usuario'
+>>>>>>> dfbfb2487206bfa0fdb460e32119c39a0c6e1b88

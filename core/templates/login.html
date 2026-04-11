@@ -15,7 +15,12 @@
     <main class="login-wrapper">
         <section class="login-card">
             <h2>Iniciar sesión</h2>
-            <form class="login-form" method="post" action="#">
+            {% for message in messages %}
+                {% if 'error' in message.tags %}
+                    <div class="login-error-banner" role="alert">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+            <form class="login-form" method="post" action="{% url 'login' %}">
                 {% csrf_token %}
                 <label for="username">Nombre de usuario</label>
                 <input id="username" name="username" type="text" required>
