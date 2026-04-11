@@ -12,7 +12,10 @@
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
         <div class="header-actions">
-            <a class="header-link" href="{% url 'profesional' %}">Volver</a>
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
         </div>
     </header>
 

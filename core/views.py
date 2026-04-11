@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
@@ -73,6 +73,24 @@ def profesional_view(request):
         return redirect('panel_profesional')
 
     return render(request, "profesional.html")
+
+
+def recuperar_password_view(request):
+    if request.method == 'POST':
+        return redirect('password_reset_done')
+
+    return render(request, 'recuperar_password.html')
+
+
+@login_required
+def logout_profesional_view(request):
+    logout(request)
+    messages.success(request, 'Sesion cerrada correctamente.')
+    return redirect('profesional')
+
+
+def recuperar_password_enviado_view(request):
+    return render(request, 'recuperar_password_enviado.html')
 
 
 def registro_profesional_view(request):

@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password actualizada | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/restablecer_completo.css' %}">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <a class="login-link" href="{% url 'profesional' %}">Volver</a>
+    </header>
+
+    <main class="content-container">
+        <section class="message-box">
+            <h2>Contrasena actualizada</h2>
+            <p>Tu nueva contrasena ya fue guardada correctamente. Ahora puedes iniciar sesion con tus datos actualizados.</p>
+            <div class="button-container">
+                <a href="{% url 'profesional' %}" class="submit-btn">Ir al acceso profesional</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

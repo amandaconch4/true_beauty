@@ -246,4 +246,21 @@ body {
     .button-container {
         flex-direction: column;
     }
+    .extra-links {
+    margin-top: -0.3rem;
+    margin-bottom: 1rem;
+    text-align: right;
+}
+
+.forgot-password-link {
+    color: var(--brown-700);
+    font-size: 0.95rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+    color: var(--beige-500);
+}
 }

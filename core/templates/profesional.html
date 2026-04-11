@@ -38,6 +38,12 @@
                     <span class="error-message" id="profesi-password-error"></span>
                 </div>
 
+                <div class="extra-links">
+                    <a href="{% url 'password_reset' %}" class="forgot-password-link">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+
                 {% if messages %}
                     <div class="messages">
                         {% for message in messages %}

@@ -1,0 +1,124 @@
+:root {
+    --cream-100: #f8f3eb;
+    --cream-200: #efe4d4;
+    --beige-500: #b48d67;
+    --brown-700: #6f543d;
+    --text: #3f3023;
+    --success-bg: #eef7ef;
+    --success-border: #cfe5d1;
+    --success-text: #2f6b3c;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--text);
+    background: linear-gradient(145deg, var(--cream-100), var(--cream-200));
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: rgba(255, 249, 241, 0.92);
+    border-bottom: 1px solid #ecdac4;
+}
+
+.logo a {
+    text-decoration: none;
+    color: var(--brown-700);
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+
+.login-link {
+    text-decoration: none;
+    color: var(--brown-700);
+    font-weight: 600;
+    padding: 0.65rem 1rem;
+    border: 1px solid #e5cdb2;
+    border-radius: 999px;
+    background-color: #fffaf2;
+}
+
+.content-container {
+    min-height: calc(100vh - 78px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+}
+
+.message-box {
+    width: min(560px, 100%);
+    background-color: rgba(255, 249, 241, 0.94);
+    border: 1px solid #e5cfb5;
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(85, 59, 37, 0.12);
+    padding: 2rem;
+    text-align: center;
+}
+
+.message-box h2 {
+    color: var(--brown-700);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.message-box p {
+    padding: 1.2rem;
+    border: 1px solid var(--success-border);
+    border-radius: 16px;
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    line-height: 1.7;
+}
+
+.button-container {
+    margin-top: 1.6rem;
+}
+
+.submit-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 0.95rem 1rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    background-color: var(--beige-500);
+    color: #fffaf4;
+    transition: 0.2s ease;
+}
+
+.submit-btn:hover,
+.login-link:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 760px) {
+    .top-header {
+        padding: 0.9rem 1rem;
+    }
+
+    .logo a {
+        font-size: 1.4rem;
+    }
+
+    .message-box {
+        padding: 1.4rem;
+    }
+
+    .message-box h2 {
+        font-size: 1.6rem;
+    }
+}
