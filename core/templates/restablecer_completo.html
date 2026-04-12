@@ -5,8 +5,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password actualizada | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/restablecer_completo.css' %}">
+    <title>Contraseña actualizada | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/profesional.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
     <header class="top-header">
@@ -15,13 +16,17 @@
     </header>
 
     <main class="content-container">
-        <section class="message-box">
-            <h2>Contrasena actualizada</h2>
-            <p>Tu nueva contrasena ya fue guardada correctamente. Ahora puedes iniciar sesion con tus datos actualizados.</p>
-            <div class="button-container">
-                <a href="{% url 'profesional' %}" class="submit-btn">Ir al acceso profesional</a>
+        <div class="form-box">
+            <h2>Contraseña cambiada exitosamente</h2>
+            <div class="mensaje-success">
+                <i class="fas fa-check-circle"></i>
+                <p>Tu contraseña ha sido actualizada correctamente.</p>
+                <p>Ahora puedes iniciar sesión con tu nueva contraseña.</p>
             </div>
-        </section>
+            <div class="button-container">
+                <a href="{% url 'login' %}" class="submit-btn">Volver al login</a>
+            </div>
+        </div>
     </main>
 </body>
 </html>

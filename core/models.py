@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 
 class PerfilUsuario(models.Model):
     ROL_CHOICES = [
+        ('administrador', 'Administrador'),
         ('profesional', 'Profesional'),
         ('usuario', 'Usuario')
     ]

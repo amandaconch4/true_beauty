@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'core'
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -76,9 +79,9 @@ WSGI_APPLICATION = 'true_beauty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'localhost:1521/orcl',
-        'USER': 'beauty',
-        'PASSWORD': 'beauty123',
+        'NAME': 'localhost:1521/ORCLPDB',
+        'USER': 'admin',
+        'PASSWORD': 'admin123',
     }
 }
 
@@ -105,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-cl'
 
 TIME_ZONE = 'UTC'
 
@@ -117,17 +120,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-<<<<<<< HEAD
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'core.Usuario'
-
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-DEFAULT_FROM_EMAIL = 'no-reply@truebeauty.local'
-=======
-STATIC_URL = 'static/'
-
-AUTH_USER_MODEL = 'core.Usuario'
->>>>>>> dfbfb2487206bfa0fdb460e32119c39a0c6e1b88

@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/panel_admin.css' %}">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <nav class="nav-links">
+            <a href="{% url 'panel_admin' %}">Inicio</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </nav>
+    </header>
+
+    <main class="admin-container">
+        <section class="welcome-box">
+            <h2>Panel de Administración</h2>
+            <p>Gestión de profesionales registrados</p>
+        </section>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <section class="form-section">
+            <h3>Registrar nuevo profesional</h3>
+
+            <form method="post" action="{% url 'crear_profesional' %}" class="admin-form">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Nombre de usuario</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre_completo">Nombre completo</label>
+                        <input type="text" id="nombre_completo" name="nombre_completo" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="celular">Celular</label>
+                        <input type="text" id="celular" name="celular">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" id="direccion" name="direccion">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password1">Contraseña</label>
+                        <input type="password" id="password1" name="password1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password2">Confirmar contraseña</label>
+                        <input type="password" id="password2" name="password2" required>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="submit-btn">Guardar profesional</button>
+                    <button type="reset" class="reset-btn">Limpiar</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="table-section">
+            <div class="table-header">
+                <h3>Listado de profesionales</h3>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Nombre completo</th>
+                            <th>Correo</th>
+                            <th>Celular</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profesional in profesionales %}
+                            <tr>
+                                <td>{{ profesional.username }}</td>
+                                <td>{{ profesional.nombre_completo }}</td>
+                                <td>{{ profesional.email }}</td>
+                                <td>{{ profesional.celular }}</td>
+                                <td>{{ profesional.direccion }}</td>
+                                <td class="actions">
+                                    <a href="{% url 'editar_profesional' profesional.id %}" class="btn-edit">
+                                        Editar
+                                    </a>
+
+                                    <form method="post" action="{% url 'eliminar_profesional' profesional.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-delete"
+                                            onclick="return confirm('¿Deseas eliminar este profesional?');">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6">No hay profesionales registrados.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
