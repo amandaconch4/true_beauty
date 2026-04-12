@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path
+from django.urls import path, reverse_lazy
 from core.views import (
     agendar_view,
     index,
@@ -55,11 +55,42 @@ urlpatterns = [
     path('panel-profesional/', panel_profesional, name='panel_profesional_alt'),
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
-    path('recuperar-password/',auth_views.PasswordResetView.as_view(template_name='recuperar_password.html'),name='password_reset'),
-    path('recuperar-password/enviado/',auth_views.PasswordResetDoneView.as_view(template_name='recuperar_password_enviado.html'),name='password_reset_done'),
+     path(
+        'recuperar-password/',
+        auth_views.PasswordResetView.as_view(
+            template_name='recuperar_password.html',
+            email_template_name='emails/password_reset_email.html',
+            subject_template_name='emails/password_reset_subject.txt',
+            success_url=reverse_lazy('password_reset_done'),
+        ),
+        name='password_reset'
+    ),
+    path(
+        'recuperar-password/enviado/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='recuperar_password_enviado.html'
+        ),
+        name='password_reset_done'
+    ),
+    #path('recuperar-password/',auth_views.PasswordResetView.as_view(template_name='recuperar_password.html'),name='password_reset'),
+    #path('recuperar-password/enviado/',auth_views.PasswordResetDoneView.as_view(template_name='recuperar_password_enviado.html'),name='password_reset_done'),
     #path('recuperar-password-enviado/',auth_views.PasswordResetDoneView.as_view(template_name='recuperar_password_enviado.html'),name='password_reset_done'),
-    path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name='restablecer_confirmar.html'),name='password_reset_confirm'),
-    path('reset/completo/',auth_views.PasswordResetCompleteView.as_view(template_name='restablecer_completo.html'),name='password_reset_complete'),
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='restablecer_confirmar.html',
+            success_url=reverse_lazy('password_reset_complete'),
+        ),
+        name='password_reset_confirm',
+    ),
+
+    path(
+        'reset/completo/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='restablecer_completo.html',
+        ),
+        name='password_reset_complete',
+    ),
   
 ]
 

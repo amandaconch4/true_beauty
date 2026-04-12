@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'core'
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# CORREO EN MODO DESARROLLO / SIMULACIÓN
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'tmp' / 'app-messages'
+DEFAULT_FROM_EMAIL = 'no-reply@truebeauty.com'
 
 
 MIDDLEWARE = [
