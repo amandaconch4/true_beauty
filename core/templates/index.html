@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>True Beauty | Peluquería</title>
+    <title>True Beauty | Peluqueria</title>
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
 
@@ -21,17 +21,17 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            {% if user.is_authenticated %}
-                <div class="top-header__actions">
+            <div class="top-header__actions">
+                {% if user.is_authenticated %}
                     <a class="login-link" href="#" onclick="return false;">Mi Perfil</a>
                     <form method="post" action="{% url 'logout' %}" class="header-logout-form">
                         {% csrf_token %}
-                        <button type="submit" class="login-link">Cerrar sesión</button>
+                        <button type="submit" class="login-link">Cerrar sesion</button>
                     </form>
-                </div>
-            {% else %}
-                <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
-            {% endif %}
+                {% else %}
+                    <a class="login-link" href="{% url 'login' %}">Iniciar sesion</a>
+                {% endif %}
+            </div>
         </div>
     </header>
 
@@ -40,7 +40,7 @@
             <ul class="menu">
                 <li><a href="{% url 'index' %}" class="menu-active">Inicio</a></li>
                 <li><a href="{% url 'servicios' %}">Servicios</a></li>
-                <li><a href="#">Recomendación de productos</a></li>
+                <li><a href="#">Recomendacion de productos</a></li>
                 <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
             </ul>
         </aside>
@@ -54,16 +54,16 @@
             </header>
 
             <section class="intro">
-                <h3>Salón de belleza y peluquería en La Reina</h3>
+                <h3>Salon de belleza y peluqueria en La Reina</h3>
                 <p>
-                    Nuestro salón ofrece una experiencia única en cuidado y belleza,
+                    Nuestro salon ofrece una experiencia unica en cuidado y belleza,
                     realizando tratamientos capilares.
                 </p>
             </section>
 
             <footer class="footer-info">
-                <p><strong>Ubicación:</strong> José Zapiola 8054, La Reina</p>
-                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+                <p><strong>Ubicacion:</strong> Jose Zapiola 8054, La Reina</p>
+                <p><strong>Contactanos:</strong> +56 2 26468197</p>
             </footer>
         </div>
     </div>

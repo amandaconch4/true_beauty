@@ -56,7 +56,7 @@ urlpatterns = [
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
     path('recuperar-password/',auth_views.PasswordResetView.as_view(template_name='recuperar_password.html'),name='password_reset'),
-    path('recuperar-password/enviado/',auth_views.PasswordResetDoneView.as_view(template_name='core/recuperar_password_enviado.html'),name='password_reset_done'),
+    path('recuperar-password/enviado/',auth_views.PasswordResetDoneView.as_view(template_name='recuperar_password_enviado.html'),name='password_reset_done'),
     #path('recuperar-password-enviado/',auth_views.PasswordResetDoneView.as_view(template_name='recuperar_password_enviado.html'),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name='restablecer_confirmar.html'),name='password_reset_confirm'),
     path('reset/completo/',auth_views.PasswordResetCompleteView.as_view(template_name='restablecer_completo.html'),name='password_reset_complete'),
