@@ -285,3 +285,29 @@ def panel_profesional(request):
         'clientes': clientes,
         'citas_hoy': citas_hoy,
     })
+
+
+@login_required
+def vista_cliente_profesi(request):
+    perfil_usuario = getattr(request.user, 'perfil', None)
+    if not request.user.is_staff or not perfil_usuario or perfil_usuario.rol != 'profesional':
+        messages.error(request, 'No tienes permiso para acceder a la vista de clientes.')
+        return redirect('profesional')
+
+    clientes_db = Usuario.objects.filter(perfil__rol='usuario')
+
+    clientes_tabla = []
+    for cliente in clientes_db:
+        ultimo_tratamiento = Tratamiento.objects.filter(usuario=cliente).order_by('-fecha').first()
+
+        clientes_tabla.append({
+            'id': cliente.id,
+            'nombre_completo': cliente.nombre_completo,
+            'ultimo_tratamiento': ultimo_tratamiento.nombre if ultimo_tratamiento else 'Sin tratamientos',
+            'fecha': ultimo_tratamiento.fecha if ultimo_tratamiento else '',
+        })
+
+    return render(request, 'vista_cliente_profesi.html', {
+        'nombre_profesional': request.user.nombre_completo,
+        'clientes_tabla': clientes_tabla,
+    })

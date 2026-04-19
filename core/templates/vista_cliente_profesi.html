@@ -1,0 +1,112 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | Panel Profesional</title>
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vista_cliente_profesi.css' %}">
+</head>
+<body>
+
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesión</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        <div class="layout">
+
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Profesional</h2>
+                    <p class="sidebar-user">{{ nombre_profesional }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menú lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                        <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="panel-content">
+                <section class="section-card">
+
+                    <div class="section-header">
+                        <div>
+                            <h2>Clientes</h2>
+                            <p>Busca y revisa la información de tus clientes.</p>
+                        </div>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="buscadorClientes" placeholder="Buscar cliente por nombre">
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table id="tablaClientes">
+                            <thead>
+                                <tr>
+                                    <th>Nombre cliente</th>
+                                    <th>Último tratamiento</th>
+                                    <th>Fecha</th>
+                                    <th>Historial</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in clientes_tabla %}
+                                <tr>
+                                    <td>{{ item.nombre_completo }}</td>
+                                    <td>{{ item.ultimo_tratamiento }}</td>
+                                    <td>{% if item.fecha %}{{ item.fecha|date:"d/m/Y" }}{% else %}Sin fecha{% endif %}</td>
+                                    <td>
+                                        <button type="button" class="secondary-btn" disabled title="Historial no disponible todavia">
+                                            Ver historial
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="empty-state">No hay clientes registrados</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const buscador = document.getElementById("buscadorClientes");
+        const filas = document.querySelectorAll("#tablaClientes tbody tr");
+
+        if (buscador) {
+            buscador.addEventListener("keyup", function () {
+                const filtro = this.value.toLowerCase();
+
+                filas.forEach(fila => {
+                    const nombre = fila.cells[0].textContent.toLowerCase();
+                    fila.style.display = nombre.includes(filtro) ? "" : "none";
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>

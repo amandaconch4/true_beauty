@@ -434,6 +434,10 @@ a {
     background: #fffdf9;
 }
 
+.citas-table {
+    min-width: 980px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -463,12 +467,55 @@ td {
     font-size: 0.96rem;
 }
 
+.table-btn,
+.status-btn {
+    min-height: 38px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.table-btn {
+    min-width: 130px;
+}
+
+.status-btn {
+    min-width: 112px;
+    cursor: default;
+}
+
+.status-btn-pendiente {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    border-color: #efd3a5;
+}
+
+.status-btn-realizada {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border-color: #b9dec6;
+}
+
+.status-btn-cancelada {
+    background-color: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: #edc4c4;
+}
+
 tbody tr:hover {
     background: #fff8ef;
 }
 
 tbody tr:last-child td {
     border-bottom: 0;
+}
+
+.fila-destacada td {
+    background: #f6eadb;
 }
 
 .badge {

@@ -28,6 +28,7 @@ from core.views import (
     registro,
     servicios_view,
     panel_profesional,
+    vista_cliente_profesi,
     panel_admin,
     crear_profesional,
     editar_profesional,
@@ -53,6 +54,7 @@ urlpatterns = [
     path('profesional/', profesional_view, name='profesional'),
     path('panel_profesional/', panel_profesional, name='panel_profesional'),
     path('panel-profesional/', panel_profesional, name='panel_profesional_alt'),
+    path('panel-profesional/clientes/', vista_cliente_profesi, name='vista_cliente_profesi'),
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
      path(

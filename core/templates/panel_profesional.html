@@ -42,7 +42,7 @@
                     <ul class="menu">
                         <li><a href="#resumen" class="menu-active">Dashboard</a></li>
                         <li><a href="#citas">Citas</a></li>
-                        <li><a href="#clientes">Clientes</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}">Clientes</a></li>
                         <li><a href="{% url 'servicios' %}">Servicios</a></li>
                         <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
                     </ul>
@@ -67,6 +67,60 @@
                     </aside>
                 </section>
 
+                <section class="section-card central-table-section" id="citas">
+                    <div class="section-header">
+                        <div>
+                            <h2>Citas del dia</h2>
+                            <p>Se muestran hasta 6 citas programadas para hoy.</p>
+                        </div>
+                    </div>
+
+                    {% if citas_hoy %}
+                        <div class="table-wrapper">
+                            <table class="citas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre cliente</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Servicio</th>
+                                        <th>Historial</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cita in citas_hoy|slice:":6" %}
+                                        <tr>
+                                            <td>{{ cita.cliente.nombre_completo }}</td>
+                                            <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                                            <td>{{ cita.hora|time:"H:i" }}</td>
+                                            <td>{{ cita.servicio }}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    class="table-btn secondary-btn"
+                                                    onclick="verHistorialCliente('{{ cita.cliente.nombre_completo|escapejs }}')">
+                                                    Ver historial
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="status-btn status-btn-{{ cita.estado }}">
+                                                    {{ cita.get_estado_display }}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <h3>No hay citas registradas para hoy</h3>
+                            <p>Cuando existan atenciones agendadas, apareceran aqui automaticamente.</p>
+                        </div>
+                    {% endif %}
+                </section>
+
                 <section class="stats-grid">
                     <article class="stat-card">
                         <p class="stat-label">Clientes</p>
@@ -85,12 +139,12 @@
                     </article>
                 </section>
 
-                <section class="panel-grid" id="citas">
+                <section class="panel-grid">
                     <article class="section-card">
                         <div class="section-header">
                             <div>
-                                <h2>Citas del dia</h2>
-                                <p>Revisa las atenciones programadas y su estado actual.</p>
+                                <h2>Resumen de agenda</h2>
+                                <p>Vista general de tus citas programadas para hoy.</p>
                             </div>
                         </div>
 
@@ -107,11 +161,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for cita in citas_hoy %}
+                                        {% for cita in citas_hoy|slice:":6" %}
                                             <tr>
                                                 <td>{{ cita.cliente.nombre_completo }}</td>
-                                                <td>{{ cita.fecha }}</td>
-                                                <td>{{ cita.hora }}</td>
+                                                <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                                                <td>{{ cita.hora|time:"H:i" }}</td>
                                                 <td>{{ cita.servicio }}</td>
                                                 <td>
                                                     <span class="badge badge-warning">{{ cita.get_estado_display }}</span>
@@ -205,6 +259,7 @@
     <script>
         const buscador = document.getElementById("buscadorClientes");
         const filasClientes = document.querySelectorAll("#tablaClientes tbody tr");
+        let filaResaltada = null;
 
         if (buscador && filasClientes.length) {
             buscador.addEventListener("keyup", function () {
@@ -215,6 +270,32 @@
                     fila.style.display = nombre.includes(filtro) ? "" : "none";
                 });
             });
+        }
+
+        function verHistorialCliente(nombreCliente) {
+            const seccionClientes = document.getElementById("clientes");
+            if (!buscador || !filasClientes.length || !seccionClientes) return;
+
+            buscador.value = nombreCliente;
+            const filtro = nombreCliente.toLowerCase().trim();
+            filaResaltada = null;
+
+            filasClientes.forEach((fila) => {
+                const nombre = fila.cells[0].textContent.toLowerCase();
+                const coincide = nombre.includes(filtro);
+                fila.style.display = coincide ? "" : "none";
+                fila.classList.remove("fila-destacada");
+
+                if (coincide && !filaResaltada) {
+                    filaResaltada = fila;
+                }
+            });
+
+            if (filaResaltada) {
+                filaResaltada.classList.add("fila-destacada");
+            }
+
+            seccionClientes.scrollIntoView({ behavior: "smooth", block: "start" });
         }
     </script>
 </body>
