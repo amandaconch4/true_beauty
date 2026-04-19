@@ -8,6 +8,7 @@
     <title>Restablecer contrasena | True Beauty</title>
     <link rel="stylesheet" href="{% static 'css/recuperar_password.css' %}">
     <link rel="stylesheet" href="{% static 'css/restablecer_confirmar.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <header class="top-header">
@@ -28,7 +29,12 @@
 
                     <div class="form-group">
                         {{ form.new_password1.label_tag }}
-                        {{ form.new_password1 }}
+                        <div class="password-wrapper">
+                            {{ form.new_password1 }}
+                            <button type="button" class="password-toggle" onclick="togglePassword('id_new_password1')">
+                                <i class="fas fa-eye" id="toggleIcon-id_new_password1"></i>
+                            </button>
+                        </div>
                         <div class="password-requisitos">
                             <p>La contrasena debe tener:</p>
                             <ul>
@@ -47,7 +53,12 @@
 
                     <div class="form-group">
                         {{ form.new_password2.label_tag }}
-                        {{ form.new_password2 }}
+                        <div class="password-wrapper">
+                            {{ form.new_password2 }}
+                            <button type="button" class="password-toggle" onclick="togglePassword('id_new_password2')">
+                                <i class="fas fa-eye" id="toggleIcon-id_new_password2"></i>
+                            </button>
+                        </div>
                         {% if form.new_password2.errors %}
                             <div class="mensaje-error">
                                 {{ form.new_password2.errors }}
@@ -90,5 +101,23 @@
     </main>
 
     <script src="{% static 'js/validaciones_password.js' %}"></script>
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(`toggleIcon-${inputId}`);
+
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>
