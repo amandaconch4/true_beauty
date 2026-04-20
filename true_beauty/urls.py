@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
+from core import views
 from core.views import (
     agendar_view,
     index,
@@ -28,7 +29,6 @@ from core.views import (
     registro,
     servicios_view,
     panel_profesional,
-    vista_cliente_profesi,
     panel_admin,
     crear_profesional,
     editar_profesional,
@@ -54,7 +54,6 @@ urlpatterns = [
     path('profesional/', profesional_view, name='profesional'),
     path('panel_profesional/', panel_profesional, name='panel_profesional'),
     path('panel-profesional/', panel_profesional, name='panel_profesional_alt'),
-    path('panel-profesional/clientes/', vista_cliente_profesi, name='vista_cliente_profesi'),
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
      path(
@@ -93,6 +92,11 @@ urlpatterns = [
         ),
         name='password_reset_complete',
     ),
+    path('clientes-profesional/', views.vista_cliente_profesi, name='vista_cliente_profesi'),
+    path('cliente/<int:id>/ficha/', views.ficha_capilar, name='ficha_capilar'),
+    path('cliente/<int:id>/cuidados/', views.cuidados_cliente, name='cuidados_cliente'),
+    path('cliente/<int:id>/historial/', views.historial_cliente, name='historial_cliente'),
+    path('cliente/<int:id>/reservas/', views.reservas_cliente, name='reservas_cliente'),
   
 ]
 

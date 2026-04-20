@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import UsuarioForm
-from .models import Cita, PerfilUsuario, Tratamiento, Usuario
+from .models import Cita, PerfilUsuario, Tratamiento, Usuario, FichaCapilar
 
 
 def index(request):
@@ -67,8 +68,16 @@ def agendar_view(request):
 
 
 def profesional_view(request):
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.user.is_authenticated:
         perfil_usuario = getattr(request.user, 'perfil', None)
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return redirect(next_url)
 
         if request.user.is_staff and perfil_usuario:
             if perfil_usuario.rol == 'administrador':
@@ -83,17 +92,17 @@ def profesional_view(request):
 
         if usuario is None:
             messages.error(request, 'Usuario o contrasena incorrectos.')
-            return render(request, "profesional.html")
+            return render(request, "profesional.html", {'next_url': next_url})
 
         perfil_usuario = getattr(usuario, 'perfil', None)
 
         if not usuario.is_staff or not perfil_usuario:
             messages.error(request, 'La cuenta no tiene permisos de acceso interno.')
-            return render(request, "profesional.html")
+            return render(request, "profesional.html", {'next_url': next_url})
         
         if perfil_usuario.rol not in ['administrador', 'profesional']:
             messages.error(request, 'La cuenta no tiene permisos de administrador ni profesional.')
-            return render(request, "profesional.html")
+            return render(request, "profesional.html", {'next_url': next_url})
 
         login(request, usuario)
 
@@ -101,12 +110,19 @@ def profesional_view(request):
         if not request.POST.get('profesi-remember-me'):
              request.session.set_expiry(0)
 
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return redirect(next_url)
+
         if perfil_usuario.rol == 'administrador':
             return redirect('panel_admin')
 
         return redirect('panel_profesional')
 
-    return render(request, "profesional.html")
+    return render(request, "profesional.html", {'next_url': next_url})
 
 
 @login_required
@@ -286,7 +302,6 @@ def panel_profesional(request):
         'citas_hoy': citas_hoy,
     })
 
-
 @login_required
 def vista_cliente_profesi(request):
     perfil_usuario = getattr(request.user, 'perfil', None)
@@ -294,20 +309,68 @@ def vista_cliente_profesi(request):
         messages.error(request, 'No tienes permiso para acceder a la vista de clientes.')
         return redirect('profesional')
 
-    clientes_db = Usuario.objects.filter(perfil__rol='usuario')
+    query = request.GET.get('q', '').strip()
+
+    clientes = Usuario.objects.filter(perfil__rol='usuario').order_by('nombre_completo')
+
+    if query:
+        clientes = clientes.filter(nombre_completo__icontains=query)
 
     clientes_tabla = []
-    for cliente in clientes_db:
+    for cliente in clientes:
         ultimo_tratamiento = Tratamiento.objects.filter(usuario=cliente).order_by('-fecha').first()
 
         clientes_tabla.append({
             'id': cliente.id,
             'nombre_completo': cliente.nombre_completo,
-            'ultimo_tratamiento': ultimo_tratamiento.nombre if ultimo_tratamiento else 'Sin tratamientos',
-            'fecha': ultimo_tratamiento.fecha if ultimo_tratamiento else '',
+            'ultimo_tratamiento': ultimo_tratamiento.nombre if ultimo_tratamiento else 'Sin tratamiento',
+            'fecha': ultimo_tratamiento.fecha if ultimo_tratamiento else None,
         })
 
-    return render(request, 'vista_cliente_profesi.html', {
+    cliente_detalle = clientes.first() if clientes.exists() else None
+
+    context = {
         'nombre_profesional': request.user.nombre_completo,
         'clientes_tabla': clientes_tabla,
+        'cliente_detalle': cliente_detalle,
+        'query': query,
+    }
+
+    return render(request, 'vista_cliente_profesi.html', context)
+
+def ficha_capilar(request, id):
+    cliente = get_object_or_404(Usuario, id=id)
+    ficha = getattr(cliente, 'ficha_capilar', None)
+
+    return render(request, 'ficha_capilar.html', {
+        'cliente': cliente,
+        'ficha': ficha
+    })
+
+
+def historial_cliente(request, id):
+    cliente = get_object_or_404(Usuario, id=id)
+    tratamientos = cliente.tratamientos.all().order_by('-fecha')
+
+    return render(request, 'historial_cliente.html', {
+        'cliente': cliente,
+        'tratamientos': tratamientos
+    })
+
+
+def reservas_cliente(request, id):
+    cliente = get_object_or_404(Usuario, id=id)
+    citas = cliente.citas_cliente.all().order_by('-fecha')
+
+    return render(request, 'reservas_cliente.html', {
+        'cliente': cliente,
+        'citas': citas
+    })
+
+
+def cuidados_cliente(request, id):
+    cliente = get_object_or_404(Usuario, id=id)
+
+    return render(request, 'cuidados_cliente.html', {
+        'cliente': cliente
     })

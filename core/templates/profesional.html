@@ -23,6 +23,7 @@
 
             <form id="profesiLoginForm" method="post" action="{% url 'profesional' %}">
                 {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next_url|default:'' }}">
 
                 <div class="form-group">
                     <label for="profesi-username">Usuario</label>

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes | Panel Profesional</title>
     <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}">
-    <link rel="stylesheet" href="{% static 'css/vista_cliente_profesi.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vista_cliente_profesi.css' %}?v=2">
 </head>
 <body>
 
@@ -53,7 +53,16 @@
                     </div>
 
                     <div class="search-box">
-                        <input type="text" id="buscadorClientes" placeholder="Buscar cliente por nombre">
+                        <form method="get" class="search-form">
+                            <input
+                                type="text"
+                                name="q"
+                                id="buscadorClientes"
+                                placeholder="Buscar cliente por nombre"
+                                value="{{ query|default:'' }}"
+                            >
+                            <button type="submit" class="secondary-btn">Buscar</button>
+                        </form>
                     </div>
 
                     <div class="table-wrapper">
@@ -71,9 +80,15 @@
                                 <tr>
                                     <td>{{ item.nombre_completo }}</td>
                                     <td>{{ item.ultimo_tratamiento }}</td>
-                                    <td>{% if item.fecha %}{{ item.fecha|date:"d/m/Y" }}{% else %}Sin fecha{% endif %}</td>
                                     <td>
-                                        <button type="button" class="secondary-btn" disabled title="Historial no disponible todavia">
+                                        {% if item.fecha %}
+                                            {{ item.fecha|date:"d/m/Y" }}
+                                        {% else %}
+                                            Sin fecha
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="secondary-btn" disabled title="Historial no disponible todavía">
                                             Ver historial
                                         </button>
                                     </td>
@@ -87,26 +102,85 @@
                         </table>
                     </div>
 
+                    <section class="cliente-detalle">
+                        {% if cliente_detalle %}
+                            <div class="section-header detalle-header">
+                                <div>
+                                    <h2>Perfil del cliente</h2>
+                                    <p>Consulta su información principal y accede rápidamente a su historial.</p>
+                                </div>
+                            </div>
+                            <div class="cliente-card">
+                                <h3>Cliente</h3>
+
+                                <div class="cliente-info">
+                                    <div class="info-row">
+                                        <label for="nombreCliente">Nombre</label>
+                                        <input
+                                            type="text"
+                                            id="nombreCliente"
+                                            value="{{ cliente_detalle.nombre_completo }}"
+                                            readonly
+                                        >
+                                    </div>
+
+                                    <div class="info-row">
+                                        <label for="celularCliente">Celular</label>
+                                        <input
+                                            type="text"
+                                            id="celularCliente"
+                                            value="{{ cliente_detalle.celular }}"
+                                            readonly
+                                        >
+                                    </div>
+
+                                    <div class="info-row">
+                                        <label for="correoCliente">Correo</label>
+                                        <input
+                                            type="email"
+                                            id="correoCliente"
+                                            value="{{ cliente_detalle.email }}"
+                                            readonly
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="cliente-actions">
+                                    <button type="button" class="secondary-btn">Editar</button>
+                                </div>
+                            </div>
+                                <div class="cliente-opciones">
+                                    <a href="{% url 'ficha_capilar' cliente_detalle.id %}" class="opcion-card">
+                                        Ficha técnica
+                                    </a>
+
+                                    <a href="{% url 'cuidados_cliente' cliente_detalle.id %}" class="opcion-card">
+                                        Cuidados y recomendaciones
+                                    </a>
+
+                                    <a href="{% url 'historial_cliente' cliente_detalle.id %}" class="opcion-card">
+                                        Historial
+                                    </a>
+
+                                    <a href="{% url 'reservas_cliente' cliente_detalle.id %}" class="opcion-card">
+                                        Reservas
+                                    </a>
+                                </div>
+                        {% elif query %}
+                            <div class="empty-state detalle-vacio">
+                                No se encontró un cliente con ese nombre.
+                            </div>
+                        {% else %}
+                            <div class="empty-state detalle-vacio">
+                                Aun no hay clientes registrados para mostrar su detalle.
+                            </div>
+                        {% endif %}
+                    </section>
+
                 </section>
             </div>
         </div>
     </main>
-
-    <script>
-        const buscador = document.getElementById("buscadorClientes");
-        const filas = document.querySelectorAll("#tablaClientes tbody tr");
-
-        if (buscador) {
-            buscador.addEventListener("keyup", function () {
-                const filtro = this.value.toLowerCase();
-
-                filas.forEach(fila => {
-                    const nombre = fila.cells[0].textContent.toLowerCase();
-                    fila.style.display = nombre.includes(filtro) ? "" : "none";
-                });
-            });
-        }
-    </script>
 
 </body>
 </html>
