@@ -1,0 +1,213 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/mi_perfil.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <header class="top-header">
+        <div class="top-header__bar">
+            <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+            <div class="top-header__actions">
+                <form method="post" action="{% url 'logout' %}" class="header-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="login-link">Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'index' %}">Inicio</a></li>
+                <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                <li><a href="#">Recomendación de productos</a></li>
+                <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                <li><a href="{% url 'perfil' %}" class="menu-active">Mi Perfil</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <div class="perfil-wrapper">
+                <section class="perfil-card">
+                    <h2><i class="fas fa-user-circle"></i> Mi Perfil</h2>
+
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form id="perfilForm" method="post" action="{% url 'perfil' %}">
+                        {% csrf_token %}
+
+                        <div class="form-section">
+                            <h3>Información Personal</h3>
+                            
+                            <div class="form-group">
+                                <label for="nombre_completo">Nombre Completo *</label>
+                                <input type="text" id="nombre_completo" name="nombre_completo" 
+                                       value="{{ usuario.nombre_completo }}" required>
+                                <span class="error-message" id="nombre-error"></span>
+                                <div class="requisitos" id="nombre-requisitos">
+                                    <ul>
+                                        <li id="req-nombre-length">Al menos 8 caracteres</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico *</label>
+                                <input type="email" id="email" name="email" 
+                                       value="{{ usuario.email }}" required>
+                                <span class="error-message" id="email-error"></span>
+                                <div class="requisitos" id="email-requisitos">
+                                    <ul>
+                                        <li id="req-email-formato">Formato válido (usuario@dominio.com)</li>
+                                        <li id="req-email-espacios">Sin espacios</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="celular">Celular *</label>
+                                <input type="tel" id="celular" name="celular" 
+                                       value="{{ usuario.celular }}" maxlength="9" required>
+                                <span class="error-message" id="celular-error"></span>
+                                <div class="requisitos" id="celular-requisitos">
+                                    <ul>
+                                        <li id="req-celular-digits">9 dígitos numéricos</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" id="direccion" name="direccion" 
+                                       value="{{ usuario.direccion|default:'' }}">
+                                <span class="error-message" id="direccion-error"></span>
+                            </div>
+
+                            <div class="form-group readonly">
+                                <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
+                                       value="{{ usuario.fecha_nacimiento|date:'Y-m-d' }}" readonly disabled>
+                                <small class="field-note">No editable</small>
+                            </div>
+
+                            <div class="form-group readonly">
+                                <label for="username">Nombre de Usuario</label>
+                                <input type="text" id="username" value="{{ usuario.username }}" readonly disabled>
+                                <small class="field-note">No editable</small>
+                            </div>
+                        </div>
+
+                        <div class="form-section password-section">
+                            <h3><i class="fas fa-lock"></i> Cambiar Contraseña (opcional)</h3>
+                            
+                            <div class="form-group">
+                                <label for="password_actual">Contraseña Actual</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password_actual" name="password_actual">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password_actual')">
+                                        <i class="fas fa-eye" id="toggleIcon-password_actual"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password_nueva">Nueva Contraseña</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password_nueva" name="password_nueva">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password_nueva')">
+                                        <i class="fas fa-eye" id="toggleIcon-password_nueva"></i>
+                                    </button>
+                                </div>
+                                <span class="error-message" id="password-error"></span>
+                                <div class="requisitos" id="password-requisitos">
+                                    <ul>
+                                        <li id="req-length">Entre 6 y 18 caracteres</li>
+                                        <li id="req-uppercase">Una letra mayúscula</li>
+                                        <li id="req-number">Un número</li>
+                                        <li id="req-special">Un carácter especial (.,!@#$%^&*)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password_confirmar">Confirmar Nueva Contraseña</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="password_confirmar" name="password_confirmar">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password_confirmar')">
+                                        <i class="fas fa-eye" id="toggleIcon-password_confirmar"></i>
+                                    </button>
+                                </div>
+                                <span class="error-message" id="password-confirmar-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="button-container">
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="danger-zone">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Zona de Peligro</h3>
+                        <p>Una vez eliminada tu cuenta, no hay vuelta atrás. Por favor, asegúrate de que realmente deseas hacerlo.</p>
+                        <button type="button" class="delete-btn" onclick="confirmarEliminarCuenta()">
+                            <i class="fas fa-trash-alt"></i> Eliminar mi cuenta
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="footer-info">
+                <p><strong>Ubicación:</strong> Jose Zapiola 8054, La Reina</p>
+                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+            </footer>
+        </div>
+    </div>
+
+    <div id="modal-eliminar" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>¿Eliminar tu cuenta?</h3>
+            </div>
+            <div class="modal-body">
+                <p>Esta acción <strong>no se puede deshacer</strong>. Se eliminarán permanentemente:</p>
+                <ul>
+                    <li>Tu perfil y datos personales</li>
+                    <li>Tu historial de citas</li>
+                    <li>Todos tus datos asociados</li>
+                </ul>
+                <p class="modal-warning">¿Estás absolutamente seguro?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+                <form method="post" action="{% url 'eliminar_cuenta' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirmar-eliminar">
+                        <i class="fas fa-trash-alt"></i> Sí, eliminar mi cuenta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/mi_perfil.js' %}"></script>
+</body>
+
+</html>

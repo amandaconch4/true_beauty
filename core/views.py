@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from django.contrib import messages
@@ -374,3 +375,93 @@ def cuidados_cliente(request, id):
     return render(request, 'cuidados_cliente.html', {
         'cliente': cliente
     })
+
+@login_required
+def perfil(request):
+    usuario = request.user
+    
+    if request.method == 'POST':
+        # Actualizar campos permitidos (excepto fecha_nacimiento)
+        usuario.nombre_completo = request.POST.get('nombre_completo', '').strip()
+        usuario.email = request.POST.get('email', '').strip()
+        usuario.direccion = request.POST.get('direccion', '').strip()
+        usuario.celular = request.POST.get('celular', '').strip()
+        
+        # Validar campos requeridos
+        errores = []
+        if not usuario.nombre_completo or len(usuario.nombre_completo) < 8:
+            errores.append('El nombre completo debe tener al menos 8 caracteres.')
+        if not usuario.email:
+            errores.append('El correo electrónico es obligatorio.')
+        elif ' ' in usuario.email:
+            errores.append('El correo electrónico no puede contener espacios.')
+        elif not re.match(r'^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', usuario.email):
+            errores.append('El correo electrónico debe tener un formato válido.')
+        
+        # Verificar email único
+        if Usuario.objects.filter(email=usuario.email).exclude(pk=usuario.pk).exists():
+            errores.append('El correo electrónico ya está en uso.')
+        
+        # Validar celular
+        if not usuario.celular:
+            errores.append('El número de celular es obligatorio.')
+        elif not re.match(r'^\d{9}$', usuario.celular):
+            errores.append('El número de celular debe tener exactamente 9 dígitos.')
+        
+        # Manejar cambio de contraseña (opcional)
+        password_actual = request.POST.get('password_actual', '').strip()
+        password_nueva = request.POST.get('password_nueva', '').strip()
+        password_confirmar = request.POST.get('password_confirmar', '').strip()
+        
+        if password_nueva or password_confirmar or password_actual:
+            if not password_actual:
+                errores.append('Debe ingresar su contraseña actual para cambiarla.')
+            elif not usuario.check_password(password_actual):
+                errores.append('La contraseña actual es incorrecta.')
+            elif password_nueva != password_confirmar:
+                errores.append('Las contraseñas nuevas no coinciden.')
+            elif len(password_nueva) < 6 or len(password_nueva) > 18:
+                errores.append('La contraseña nueva debe tener entre 6 y 18 caracteres.')
+            elif not any(char.isupper() for char in password_nueva):
+                errores.append('La contraseña nueva debe contener al menos una mayúscula.')
+            elif not any(char.isdigit() for char in password_nueva):
+                errores.append('La contraseña nueva debe contener al menos un número.')
+            elif not any(char in "!@#$%^&*,." for char in password_nueva):
+                errores.append('La contraseña nueva debe contener al menos un carácter especial.')
+        
+        if errores:
+            for error in errores:
+                messages.error(request, error)
+        else:
+            # Guardar cambios
+            if password_nueva:
+                usuario.set_password(password_nueva)
+            usuario.save()
+            messages.success(request, 'Perfil actualizado correctamente.')
+            return redirect('perfil')
+    
+    return render(request, 'mi_perfil.html', {
+        'usuario': usuario
+    })
+
+
+@login_required
+@require_POST
+def eliminar_cuenta(request):
+    usuario = request.user
+    username = usuario.username
+    
+    # No permitir eliminar cuentas de administrador o profesional desde aquí
+    perfil_usuario = getattr(usuario, 'perfil', None)
+    if perfil_usuario and perfil_usuario.rol in ['administrador', 'profesional']:
+        messages.error(request, 'No puedes eliminar una cuenta de administrador o profesional desde esta página.')
+        return redirect('perfil')
+    
+    # Cerrar sesión antes de eliminar
+    logout(request)
+    
+    # Eliminar el usuario
+    usuario.delete()
+    
+    messages.success(request, f'Tu cuenta ({username}) ha sido eliminada permanentemente.')
+    return redirect('index')
