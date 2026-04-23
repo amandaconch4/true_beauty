@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Profesional | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}">
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=7">
 </head>
 <body>
     <header class="top-header">
@@ -52,8 +52,8 @@
             <div class="panel-content">
                 <section class="panel-hero" id="resumen">
                     <article class="hero-card">
-                        <span class="eyebrow">Panel profesional</span>
                         <h2 class="panel-title">Bienvenida, {{ nombre_profesional }}</h2>
+                        <p class="panel-subtitle">Gestiona tus citas, revisa clientes activos y registra nuevas atenciones desde un solo lugar.</p>
                         <div class="hero-meta">
                             <span class="meta-pill">Clientes registrados: {{ clientes|length }}</span>
                             <span class="meta-pill">Citas de hoy: {{ citas_hoy|length }}</span>
@@ -61,8 +61,19 @@
                     </article>
 
                     <aside class="side-card">
+                        <div>
+                            <span class="eyebrow">Accion rapida</span>
+                            <h2>Gestion diaria</h2>
+                        </div>
                         <div class="quick-actions">
-                            <a href="{% url 'registro' %}?next={% url 'panel_profesional' %}" class="action-btn">Agregar nuevo cliente</a>
+                            <a href="{% url 'registro' %}?next={% url 'panel_profesional' %}" class="action-btn">
+                                <span class="action-icon">+</span>
+                                Agregar nuevo cliente
+                            </a>
+                            <a href="{% url 'agendar_hora' %}" class="action-btn action-btn-light">
+                                <span class="action-icon">+</span>
+                                Agregar nueva cita
+                            </a>
                         </div>
                     </aside>
                 </section>
@@ -71,7 +82,6 @@
                     <div class="section-header">
                         <div>
                             <h2>Citas del dia</h2>
-                            <p>Se muestran hasta 6 citas programadas para hoy.</p>
                         </div>
                     </div>
 
@@ -116,7 +126,6 @@
                     {% else %}
                         <div class="empty-state">
                             <h3>No hay citas registradas para hoy</h3>
-                            <p>Cuando existan atenciones agendadas, apareceran aqui automaticamente.</p>
                         </div>
                     {% endif %}
                 </section>
@@ -125,22 +134,22 @@
                     <article class="stat-card">
                         <p class="stat-label">Clientes</p>
                         <p class="stat-value">{{ clientes|length }}</p>
-                        <p class="stat-helper">Personas con historial disponible</p>
+                        <p class="stat-helper">Personas visibles en tu panel</p>
                     </article>
                     <article class="stat-card">
                         <p class="stat-label">Citas hoy</p>
                         <p class="stat-value">{{ citas_hoy|length }}</p>
-                        <p class="stat-helper">Atenciones programadas para hoy</p>
+                        <p class="stat-helper">Atenciones programadas</p>
                     </article>
                     <article class="stat-card">
                         <p class="stat-label">Ultima actualizacion</p>
                         <p class="stat-value">Hoy</p>
-                        <p class="stat-helper">Informacion cargada en el panel</p>
+                        <p class="stat-helper">Informacion cargada en el sistema</p>
                     </article>
                 </section>
 
-                <section class="panel-grid">
-                    <article class="section-card">
+                <section class="agenda-summary">
+                    <article class="agenda-table-section">
                         <div class="section-header">
                             <div>
                                 <h2>Resumen de agenda</h2>
@@ -183,25 +192,6 @@
                         {% endif %}
                     </article>
 
-                    <aside class="section-card">
-                        <div class="section-header">
-                            <div>
-                                <h2>Actividad</h2>
-                                <p>Accesos utiles para tu jornada.</p>
-                            </div>
-                        </div>
-
-                        <div class="appointment-list">
-                            <div class="appointment-card">
-                                <h3>Clientes activos</h3>
-                                <p>Tienes {{ clientes|length }} clientes visibles en el panel.</p>
-                            </div>
-                            <div class="appointment-card">
-                                <h3>Agenda del dia</h3>
-                                <p>Hay {{ citas_hoy|length }} citas cargadas actualmente.</p>
-                            </div>
-                        </div>
-                    </aside>
                 </section>
 
                 <section class="section-card" id="clientes">
