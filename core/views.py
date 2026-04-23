@@ -45,6 +45,8 @@ def servicios_view(request):
 
 
 def registro(request):
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         usuario_form = UsuarioForm(request.POST)
         if usuario_form.is_valid():
@@ -53,6 +55,12 @@ def registro(request):
             usuario.perfil = perfil_usuario
             usuario.save()
             messages.success(request, "Registro exitoso. Ya puedes iniciar sesion.")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
             return redirect('login')
 
         storage = messages.get_messages(request)
@@ -61,7 +69,10 @@ def registro(request):
     else:
         usuario_form = UsuarioForm()
 
-    return render(request, 'registro.html', {'usuario_form': usuario_form})
+    return render(request, 'registro.html', {
+        'usuario_form': usuario_form,
+        'next_url': next_url,
+    })
 
 
 def agendar_view(request):
