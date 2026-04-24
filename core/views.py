@@ -75,8 +75,113 @@ def registro(request):
     })
 
 
+@login_required(login_url='/login/')
 def agendar_view(request):
-    return render(request, "agendar_hora.html")
+    # Obtener citas del usuario actual
+    mis_citas = Cita.objects.filter(
+        cliente=request.user
+    ).order_by('fecha', 'hora')
+    
+    if request.method == 'POST':
+        servicio = request.POST.get('servicio', '').strip()
+        fecha_str = request.POST.get('fecha', '').strip()
+        hora_str = request.POST.get('hora', '').strip()
+        
+        # Validaciones
+        errores = []
+        
+        if not servicio:
+            errores.append('Debes seleccionar un servicio.')
+        
+        if not fecha_str:
+            errores.append('Debes seleccionar una fecha.')
+        
+        if not hora_str:
+            errores.append('Debes seleccionar una hora.')
+        
+        if errores:
+            for error in errores:
+                messages.error(request, error)
+            return render(request, "agendar_hora.html", {
+                'mis_citas': mis_citas,
+                'servicio_seleccionado': servicio,
+                'fecha_seleccionada': fecha_str,
+                'hora_seleccionada': hora_str,
+            })
+        
+        # Buscar un profesional disponible (que no tenga cita a esa hora)
+        from datetime import datetime, time
+        
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        hora = datetime.strptime(hora_str, '%H:%M').time()
+        
+        # Obtener profesionales
+        profesionales = Usuario.objects.filter(
+            perfil__rol='profesional'
+        )
+        
+        # Verificar si hay profesionales en el sistema
+        if not profesionales.exists():
+            messages.error(request, 'No hay profesionales configurados en el sistema. Contacta al administrador.')
+            return render(request, "agendar_hora.html", {
+                'mis_citas': mis_citas,
+                'servicio_seleccionado': servicio,
+                'fecha_seleccionada': fecha_str,
+                'hora_seleccionada': hora_str,
+            })
+        
+        profesional_asignado = None
+        for profesional in profesionales:
+            # Verificar si el profesional ya tiene una cita a esa hora
+            cita_existente = Cita.objects.filter(
+                profesional=profesional,
+                fecha=fecha,
+                hora=hora,
+                estado__in=['pendiente', 'realizada']
+            ).first()
+            
+            if not cita_existente:
+                profesional_asignado = profesional
+                break
+        
+        if not profesional_asignado:
+            messages.error(request, f'No hay profesionales disponibles el {fecha_str} a las {hora_str}. Todos los profesionales tienen citas agendadas en ese horario. Por favor, selecciona otra fecha u hora.')
+            return render(request, "agendar_hora.html", {
+                'mis_citas': mis_citas,
+                'servicio_seleccionado': servicio,
+                'fecha_seleccionada': fecha_str,
+                'hora_seleccionada': hora_str,
+            })
+        
+        # Crear la cita
+        nombres_servicios = {
+            'corte': 'Corte de pelo',
+            'alisado': 'Alisado',
+            'botox': 'Botox capilar',
+            'peinado': 'Peinado',
+            'keratina': 'Tratamiento de keratina',
+            'coloracion': 'Coloración',
+        }
+        
+        cita = Cita.objects.create(
+            cliente=request.user,
+            profesional=profesional_asignado,
+            servicio=nombres_servicios.get(servicio, servicio),
+            fecha=fecha,
+            hora=hora,
+            estado='pendiente'
+        )
+        
+        messages.success(request, f'¡Cita agendada exitosamente! Te esperamos el {fecha_str} a las {hora_str}.')
+        
+        # Actualizar la lista de citas
+        mis_citas = Cita.objects.filter(
+            cliente=request.user
+        ).order_by('fecha', 'hora')
+    
+    return render(request, "agendar_hora.html", {
+        'mis_citas': mis_citas
+    })
 
 
 def profesional_view(request):
@@ -476,3 +581,30 @@ def eliminar_cuenta(request):
     
     messages.success(request, f'Tu cuenta ({username}) ha sido eliminada permanentemente.')
     return redirect('index')
+
+
+@login_required
+@require_POST
+def cancelar_cita(request, cita_id):
+    cita = get_object_or_404(Cita, id=cita_id, cliente=request.user)
+    
+    if cita.estado != 'pendiente':
+        messages.error(request, 'Solo puedes cancelar citas pendientes.')
+        return redirect('agendar_hora')
+    
+    cita.estado = 'cancelada'
+    cita.save()
+    
+    messages.success(request, f'Tu cita del {cita.fecha} a las {cita.hora} ha sido cancelada.')
+    return redirect('agendar_hora')
+
+
+@login_required(login_url='/login/')
+def mis_citas(request):
+    citas = Cita.objects.filter(
+        cliente=request.user
+    ).order_by('fecha', 'hora')
+    
+    return render(request, 'mis_citas.html', {
+        'citas': citas
+    })

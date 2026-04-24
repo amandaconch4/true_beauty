@@ -7,8 +7,7 @@
     --text: #3f3023;
 }
 
-html,
-body {
+html, body {
     height: 100%;
 }
 
@@ -28,9 +27,8 @@ body {
 /* Estilos header */
 .top-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
+    justify-content: flex-start;
+    padding: 0.6rem 2rem;
     background-color: rgba(255, 249, 241, 0.92);
     border-bottom: 1px solid #ecdac4;
     position: fixed;
@@ -38,12 +36,39 @@ body {
     left: 0;
     right: 0;
     z-index: 20;
+    height: 60px;
+    box-sizing: border-box;
+}
+
+.top-header__bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.top-header__actions {
+    grid-column: 2;
+    justify-self: end;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.55rem;
 }
 
 .logo {
-    font-size: 2rem;
+    grid-column: 1;
+    justify-self: start;
+    font-size: 1.6rem;
     color: var(--brown-700);
     letter-spacing: 1px;
+}
+
+.logo a {
+    text-decoration: none;
+    color: var(--brown-700);
 }
 
 .login-link {
@@ -60,24 +85,36 @@ body {
     background-color: #f0dfcb;
 }
 
-/* Contenedor layout principal */
+.header-logout-form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.header-logout-form button.login-link {
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+/* Layout y Sidebar */
 .layout {
     display: block;
-    min-height: calc(100vh - 72px);
-    margin-top: 72px;
+    min-height: calc(100vh - 60px);
+    margin-top: 60px;
     background-color: var(--cream-100);
 }
 
-/* Estilos sidebar */
 .sidebar {
     background-color: rgba(255, 249, 241, 0.88);
     border-right: 1px solid #ecdac4;
     padding: 2rem 1.2rem;
     position: fixed;
-    top: 72px;
+    top: 60px;
     left: 0;
     width: 250px;
-    height: calc(100vh - 72px);
+    height: calc(100vh - 60px);
     overflow-y: auto;
     z-index: 10;
 }
@@ -116,6 +153,7 @@ body {
     border: 1px solid #d9c1a6;
 }
 
+/* Sección Agendar */
 .agendar-section {
     flex: 1;
     padding: 2rem 8% 3rem;
@@ -134,7 +172,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* Estilos formulario de agendamiento */
+/* Formulario */
 .agendar-form {
     max-width: 500px;
     margin: 0 auto;
@@ -191,6 +229,192 @@ body {
     background-color: #a07a5a;
 }
 
+/* Mensajes */
+.messages {
+    max-width: 500px;
+    margin: 1.5rem auto 0;
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error,
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Sección Mis Citas */
+.mis-citas-section {
+    padding: 2rem 8% 3rem;
+    background-color: rgba(255, 252, 247, 0.5);
+    border-top: 1px solid #e5cdb2;
+}
+
+.mis-citas-section h2 {
+    color: var(--brown-700);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.mis-citas-section h2 i {
+    color: var(--beige-500);
+}
+
+.citas-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.cita-card {
+    background: #fffaf2;
+    border: 1px solid #ecdac4;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(85, 59, 37, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cita-card.cita-pendiente {
+    border-left: 4px solid #ffc107;
+}
+
+.cita-card.cita-realizada {
+    border-left: 4px solid #28a745;
+    opacity: 0.85;
+}
+
+.cita-card.cita-cancelada {
+    border-left: 4px solid #6c757d;
+    opacity: 0.7;
+}
+
+.cita-info h4 {
+    color: var(--brown-700);
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.cita-fecha {
+    color: #5a4635;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.cita-fecha i {
+    color: var(--beige-500);
+    margin-right: 0.3rem;
+    margin-left: 0.5rem;
+}
+
+.cita-fecha i:first-child {
+    margin-left: 0;
+}
+
+.cita-profesional {
+    color: #8b7355;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.cita-profesional i {
+    color: var(--beige-500);
+    margin-right: 0.3rem;
+}
+
+.cita-estado {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estado-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.estado-realizada {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.estado-cancelada {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.cita-acciones {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5cdb2;
+}
+
+.btn-cancelar-cita {
+    width: 100%;
+    padding: 0.6rem;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cancelar-cita:hover {
+    background-color: #c82333;
+}
+
+.sin-citas {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #8b7355;
+}
+
+.sin-citas i {
+    font-size: 3rem;
+    color: #d9c1a6;
+    margin-bottom: 1rem;
+}
+
+.sin-citas p {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sin-citas-hint {
+    font-size: 0.9rem !important;
+    font-style: italic;
+}
+
 /* Estilos footer */
 .footer-info {
     margin-top: auto;
@@ -210,7 +434,7 @@ body {
     margin-top: 0;
 }
 
-/* Estilos responsivos para dispositivos móviles */
+/* Estilos responsivos para dispositivos móviles */
 @media (max-width: 760px) {
     .top-header {
         padding: 0.9rem 1rem;
@@ -248,5 +472,17 @@ body {
 
     .agendar-form {
         padding: 1.5rem;
+    }
+
+    .mis-citas-section {
+        padding: 1.5rem 5% 2rem;
+    }
+
+    .citas-lista {
+        grid-template-columns: 1fr;
+    }
+
+    .messages {
+        padding: 0 5%;
     }
 }

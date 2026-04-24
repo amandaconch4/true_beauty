@@ -34,6 +34,8 @@ from core.views import (
     editar_profesional,
     eliminar_profesional,
     eliminar_cuenta,
+    cancelar_cita,
+    mis_citas,
 )
 
 urlpatterns = [
@@ -48,6 +50,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('perfil/', views.perfil, name='perfil'),
     path('eliminar-cuenta/', eliminar_cuenta, name='eliminar_cuenta'),
+    path('cancelar-cita/<int:cita_id>/', cancelar_cita, name='cancelar_cita'),
+    path('mis-citas/', mis_citas, name='mis_citas'),
     path('panel_admin/', panel_admin, name='panel_admin'),
     path('crear-profesional/', crear_profesional, name='crear_profesional'),
     path('editar-profesional/<int:id>/', editar_profesional, name='editar_profesional'),

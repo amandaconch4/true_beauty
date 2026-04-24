@@ -1,0 +1,97 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/agendar_hora.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <header class="top-header">
+        <div class="top-header__bar">
+            <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+            <div class="top-header__actions">
+                <a class="login-link" href="{% url 'perfil' %}">Mi Perfil</a>
+                <form method="post" action="{% url 'logout' %}" class="header-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="login-link">Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'index' %}">Inicio</a></li>
+                <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                <li><a href="#">Recomendación de productos</a></li>
+                <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                <li><a href="{% url 'mis_citas' %}" class="menu-active">Mis Citas</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <section class="mis-citas-section">
+                <h2><i class="fas fa-calendar-alt"></i> Mis Citas</h2>
+                
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if citas %}
+                    <div class="citas-lista">
+                        {% for cita in citas %}
+                            <div class="cita-card {% if cita.estado == 'pendiente' %}cita-pendiente{% elif cita.estado == 'realizada' %}cita-realizada{% else %}cita-cancelada{% endif %}">
+                                <div class="cita-info">
+                                    <h4>{{ cita.servicio }}</h4>
+                                    <p class="cita-fecha">
+                                        <i class="fas fa-calendar"></i> {{ cita.fecha|date:"d/m/Y" }}
+                                        <i class="fas fa-clock"></i> {{ cita.hora|time:"H:i" }}
+                                    </p>
+                                    <p class="cita-profesional">
+                                        <i class="fas fa-user"></i> Profesional: {{ cita.profesional.nombre_completo }}
+                                    </p>
+                                    <span class="cita-estado estado-{{ cita.estado }}">
+                                        {% if cita.estado == 'pendiente' %}Pendiente{% elif cita.estado == 'realizada' %}Realizada{% else %}Cancelada{% endif %}
+                                    </span>
+                                </div>
+                                {% if cita.estado == 'pendiente' %}
+                                    <form method="post" action="{% url 'cancelar_cita' cita.id %}" class="cita-acciones">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-cancelar-cita" onclick="return confirm('¿Estás seguro de cancelar esta cita?')">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="sin-citas">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No tienes citas agendadas.</p>
+                        <p class="sin-citas-hint">¡<a href="{% url 'agendar_hora' %}">Agenda tu primera cita</a> ahora!</p>
+                    </div>
+                {% endif %}
+            </section>
+
+            <footer class="footer-info">
+                <p><strong>Ubicación:</strong> José Zapiola 8054, La Reina</p>
+                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

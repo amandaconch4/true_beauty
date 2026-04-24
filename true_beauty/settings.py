@@ -82,9 +82,9 @@ WSGI_APPLICATION = 'true_beauty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'localhost:1521/ORCLPDB',
-        'USER': 'admin',
-        'PASSWORD': 'admin123',
+        'NAME': 'localhost:1521/orcl',
+        'USER': 'beauty',
+        'PASSWORD': 'beauty123',
     }
 }
 
