@@ -1,0 +1,94 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas del cliente | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=12">
+    <link rel="stylesheet" href="{% static 'css/reservas.css' %}?v=1">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Profesional</h2>
+                    <p class="sidebar-user">{{ nombre_profesional }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                        <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <section class="panel-content reservas-content">
+                <div class="form-title">
+                    <h2>Reservas</h2>
+                </div>
+
+                <section class="client-strip">
+                    <label for="nombre">Cliente</label>
+                    <input type="text" id="nombre" value="{{ cliente.nombre_completo }}" readonly>
+                </section>
+
+                <section class="reservas-card" aria-label="Listado de reservas del cliente">
+                    {% if reservas %}
+                        <div class="reservas-table-wrap">
+                            <table class="reservas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Profesional</th>
+                                        <th>Tratamiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reserva in reservas %}
+                                        <tr>
+                                            <td>
+                                                <span class="estado-badge estado-{{ reserva.estado }}">
+                                                    {{ reserva.get_estado_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ reserva.fecha|date:"d/m/Y" }}</td>
+                                            <td>{{ reserva.hora|time:"H:i" }}</td>
+                                            <td>{{ reserva.profesional.nombre_completo }}</td>
+                                            <td>{{ reserva.servicio }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <article class="empty-reservas">
+                            <h3>Sin reservas registradas</h3>
+                            <p>Cuando este cliente tenga citas agendadas o realizadas, apareceran en esta seccion.</p>
+                        </article>
+                    {% endif %}
+                </section>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

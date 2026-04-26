@@ -1,0 +1,108 @@
+.reservas-content {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.reservas-card {
+    overflow: hidden;
+    border: 1px solid rgba(227, 203, 176, 0.82);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(250, 243, 232, 0.96));
+    box-shadow: var(--shadow);
+}
+
+.reservas-table-wrap {
+    overflow-x: auto;
+}
+
+.reservas-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.reservas-table th,
+.reservas-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(227, 203, 176, 0.68);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.reservas-table th {
+    color: var(--brown-700);
+    background: rgba(246, 234, 219, 0.72);
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.reservas-table td {
+    color: var(--text);
+    font-weight: 650;
+}
+
+.reservas-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 96px;
+    min-height: 34px;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: capitalize;
+}
+
+.estado-pendiente {
+    color: #7a4f12;
+    background: #fff2cf;
+    border: 1px solid #edcf89;
+}
+
+.estado-realizada {
+    color: #2f7250;
+    background: #edf8f1;
+    border: 1px solid #b7dec4;
+}
+
+.estado-cancelada {
+    color: #9a3c36;
+    background: #fff0ef;
+    border: 1px solid #e6b9b4;
+}
+
+.empty-reservas {
+    display: grid;
+    place-items: center;
+    gap: 0.45rem;
+    min-height: 220px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.empty-reservas h3 {
+    margin: 0;
+    color: var(--brown-900);
+    font-size: 1.1rem;
+}
+
+.empty-reservas p {
+    max-width: 460px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+@media (max-width: 680px) {
+    .reservas-table th,
+    .reservas-table td {
+        padding: 0.85rem;
+    }
+}

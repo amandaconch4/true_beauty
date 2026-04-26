@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, datetime
 from types import SimpleNamespace
 
 from django.contrib import messages
@@ -86,16 +86,40 @@ def agendar_view(request):
         and perfil_usuario
         and perfil_usuario.rol == 'profesional'
     )
+    clientes = Usuario.objects.filter(perfil__rol='usuario').order_by('nombre_completo') if desde_panel_profesional else Usuario.objects.none()
+    profesionales = Usuario.objects.filter(perfil__rol='profesional').order_by('nombre_completo')
+    cliente_seleccionado_id = ''
+    profesional_seleccionado_id = ''
     mis_citas = Cita.objects.filter(
         cliente=request.user
     ).order_by('fecha', 'hora')
 
     if request.method == 'POST':
+        cliente_seleccionado_id = request.POST.get('cliente_id', '').strip()
+        profesional_seleccionado_id = request.POST.get('profesional_id', '').strip()
         servicio = request.POST.get('servicio', '').strip()
         fecha_str = request.POST.get('fecha', '').strip()
         hora_str = request.POST.get('hora', '').strip()
 
         errores = []
+        cliente_cita = request.user
+        profesional_elegido = None
+
+        if desde_panel_profesional:
+            if not cliente_seleccionado_id:
+                errores.append('Debes seleccionar un cliente.')
+            else:
+                cliente_cita = clientes.filter(id=cliente_seleccionado_id).first()
+                if cliente_cita is None:
+                    errores.append('El cliente seleccionado no es valido.')
+
+            if not profesional_seleccionado_id:
+                errores.append('Debes seleccionar un profesional.')
+            else:
+                profesional_elegido = profesionales.filter(id=profesional_seleccionado_id).first()
+                if profesional_elegido is None:
+                    errores.append('El profesional seleccionado no es valido.')
+
         if not servicio:
             errores.append('Debes seleccionar un servicio.')
         if not fecha_str:
@@ -109,6 +133,10 @@ def agendar_view(request):
             return render(request, "agendar_hora.html", {
                 'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
+                'clientes': clientes,
+                'profesionales': profesionales,
+                'cliente_seleccionado_id': cliente_seleccionado_id,
+                'profesional_seleccionado_id': profesional_seleccionado_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
@@ -118,35 +146,47 @@ def agendar_view(request):
 
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         hora = datetime.strptime(hora_str, '%H:%M').time()
-        profesionales = Usuario.objects.filter(perfil__rol='profesional')
 
         if not profesionales.exists():
             messages.error(request, 'No hay profesionales configurados en el sistema. Contacta al administrador.')
             return render(request, "agendar_hora.html", {
                 'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
+                'clientes': clientes,
+                'profesionales': profesionales,
+                'cliente_seleccionado_id': cliente_seleccionado_id,
+                'profesional_seleccionado_id': profesional_seleccionado_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
 
         profesional_asignado = None
-        for profesional in profesionales:
-            cita_existente = Cita.objects.filter(
-                profesional=profesional,
-                fecha=fecha,
-                hora=hora,
-                estado__in=['pendiente', 'realizada']
-            ).first()
-            if not cita_existente:
-                profesional_asignado = profesional
-                break
+        profesionales_disponibles = [profesional_elegido] if profesional_elegido else profesionales
+        for profesional in profesionales_disponibles:
+            if profesional:
+                cita_existente = Cita.objects.filter(
+                    profesional=profesional,
+                    fecha=fecha,
+                    hora=hora,
+                    estado__in=['pendiente', 'realizada']
+                ).first()
+                if not cita_existente:
+                    profesional_asignado = profesional
+                    break
 
         if not profesional_asignado:
-            messages.error(request, f'No hay profesionales disponibles el {fecha_str} a las {hora_str}. Todos los profesionales tienen citas agendadas en ese horario. Por favor, selecciona otra fecha u hora.')
+            if profesional_elegido:
+                messages.error(request, f'{profesional_elegido.nombre_completo} no esta disponible el {fecha_str} a las {hora_str}. Por favor, selecciona otra fecha u hora.')
+            else:
+                messages.error(request, f'No hay profesionales disponibles el {fecha_str} a las {hora_str}. Todos los profesionales tienen citas agendadas en ese horario. Por favor, selecciona otra fecha u hora.')
             return render(request, "agendar_hora.html", {
                 'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
+                'clientes': clientes,
+                'profesionales': profesionales,
+                'cliente_seleccionado_id': cliente_seleccionado_id,
+                'profesional_seleccionado_id': profesional_seleccionado_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
@@ -161,7 +201,7 @@ def agendar_view(request):
             'coloracion': 'Coloracion',
         }
         Cita.objects.create(
-            cliente=request.user,
+            cliente=cliente_cita,
             profesional=profesional_asignado,
             servicio=nombres_servicios.get(servicio, servicio),
             fecha=fecha,
@@ -170,12 +210,16 @@ def agendar_view(request):
         )
         messages.success(request, f'Cita agendada exitosamente. Te esperamos el {fecha_str} a las {hora_str}.')
         mis_citas = Cita.objects.filter(
-            cliente=request.user
+            cliente=cliente_cita if desde_panel_profesional else request.user
         ).order_by('fecha', 'hora')
 
     return render(request, "agendar_hora.html", {
         'desde_panel_profesional': desde_panel_profesional,
         'mis_citas': mis_citas,
+        'clientes': clientes,
+        'profesionales': profesionales,
+        'cliente_seleccionado_id': cliente_seleccionado_id,
+        'profesional_seleccionado_id': profesional_seleccionado_id,
     })
 def profesional_view(request):
     next_url = request.POST.get('next') or request.GET.get('next')
@@ -578,12 +622,23 @@ def historial_cliente(request, id):
 
 
 def reservas_cliente(request, id):
-    cliente = get_object_or_404(Usuario, id=id)
-    citas = cliente.citas_cliente.all().order_by('-fecha')
+    perfil_usuario = getattr(request.user, 'perfil', None)
+    if not request.user.is_staff or not perfil_usuario or perfil_usuario.rol != 'profesional':
+        messages.error(request, 'No tienes permiso para acceder a las reservas profesionales.')
+        return redirect('profesional')
 
-    return render(request, 'reservas_cliente.html', {
+    cliente = get_object_or_404(Usuario, id=id, perfil__rol='usuario')
+    reservas = Cita.objects.select_related(
+        'cliente',
+        'profesional',
+    ).filter(
+        cliente=cliente
+    ).order_by('-fecha', '-hora')
+
+    return render(request, 'reservas.html', {
+        'nombre_profesional': request.user.nombre_completo,
         'cliente': cliente,
-        'citas': citas
+        'reservas': reservas,
     })
 
 
