@@ -6,12 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Profesional | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=9">
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=10">
 </head>
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
         <div class="header-actions">
+            <a href="{% url 'index' %}" class="header-link">Volver</a>
             <form method="post" action="{% url 'logout_profesional' %}">
                 {% csrf_token %}
                 <button type="submit" class="header-link">Cerrar sesion</button>
@@ -222,9 +223,9 @@
                                         <tr>
                                             <td>{{ cliente.nombre_completo }}</td>
                                             <td>{{ cliente.ultimo_tratamiento }}</td>
-                                            <td>{{ cliente.fecha }}</td>
+                                            <td>{% if cliente.fecha %}{{ cliente.fecha|date:"d/m/Y" }}{% else %}-{% endif %}</td>
                                             <td>
-                                                <button type="button" class="secondary-btn">Ver historial</button>
+                                                <a href="{% url 'historial_cliente' cliente.id %}" class="secondary-btn">Ver historial</a>
                                             </td>
                                         </tr>
                                     {% endfor %}

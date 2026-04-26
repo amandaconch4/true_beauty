@@ -6,12 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha tecnica | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=12">
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=13">
 </head>
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
         <div class="header-actions">
+            <a href="{% url 'vista_cliente_profesi' %}" class="header-link">Volver</a>
             <form method="post" action="{% url 'logout_profesional' %}">
                 {% csrf_token %}
                 <button type="submit" class="header-link">Cerrar sesion</button>

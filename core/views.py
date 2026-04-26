@@ -439,12 +439,12 @@ def panel_profesional(request):
 
     clientes = []
     for cliente in clientes_db:
-        ultimo_tratamiento = Tratamiento.objects.filter(usuario=cliente).order_by('-fecha').first()
+        ultimo_tratamiento = cliente.cuidados_recomendaciones.first()
 
         clientes.append({
             'id': cliente.id,
             'nombre_completo': cliente.nombre_completo,
-            'ultimo_tratamiento': ultimo_tratamiento.nombre if ultimo_tratamiento else 'Sin tratamientos',
+            'ultimo_tratamiento': ultimo_tratamiento.producto_recomendado if ultimo_tratamiento else 'Sin tratamientos',
             'fecha': ultimo_tratamiento.fecha if ultimo_tratamiento else '',
         })
     
