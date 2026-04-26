@@ -1,0 +1,93 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de tratamientos | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=12">
+    <link rel="stylesheet" href="{% static 'css/historial.css' %}?v=2">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Profesional</h2>
+                    <p class="sidebar-user">{{ request.user.nombre_completo }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                        <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <section class="panel-content historial-content">
+                <div class="form-title">
+                    <h2>Historial</h2>
+                </div>
+
+                <section class="client-strip">
+                    <label for="nombre">Cliente</label>
+                    <input type="text" id="nombre" value="{{ cliente.nombre_completo }}" readonly>
+                </section>
+
+                <div class="historial-list">
+                    {% if tratamientos %}
+                        {% for tratamiento in tratamientos %}
+                            <article class="historial-card">
+                                <div class="historial-field">
+                                    <span>Tratamiento</span>
+                                    <input type="text" value="{{ tratamiento.producto_recomendado }}" readonly>
+                                </div>
+
+                                <div class="historial-field">
+                                    <span>Fecha</span>
+                                    <input type="text" value="{{ tratamiento.fecha|date:'d/m/Y' }}" readonly>
+                                </div>
+
+                                <div class="historial-field">
+                                    <span>Observacion</span>
+                                    <input type="text" value="{{ tratamiento.recomendacion_casa }}" readonly>
+                                </div>
+
+                                <div class="historial-field">
+                                    <span>Proxima visita sugerida</span>
+                                    <input type="text" value="{{ tratamiento.fecha_termino|date:'d/m/Y' }}" readonly>
+                                </div>
+
+                                <div class="historial-actions">
+                                    <a href="{% url 'cuidados_cliente' cliente.id %}?cuidado_id={{ tratamiento.id }}" class="muted-btn historial-btn">Editar tratamiento</a>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <article class="historial-card empty-history">
+                            <h3>Sin tratamientos registrados</h3>
+                            <p>Cuando se registren tratamientos para este cliente, apareceran en esta seccion.</p>
+                        </article>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

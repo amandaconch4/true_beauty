@@ -569,9 +569,9 @@ def ficha_capilar(request, id):
 
 def historial_cliente(request, id):
     cliente = get_object_or_404(Usuario, id=id)
-    tratamientos = cliente.tratamientos.all().order_by('-fecha')
+    tratamientos = cliente.cuidados_recomendaciones.all()
 
-    return render(request, 'historial_cliente.html', {
+    return render(request, 'historial.html', {
         'cliente': cliente,
         'tratamientos': tratamientos
     })
