@@ -1,0 +1,212 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha tecnica | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=9">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <p class="sidebar-label">Panel</p>
+                <h2 class="sidebar-title">Profesional</h2>
+                <p class="sidebar-user">{{ request.user.nombre_completo }}</p>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="Menu lateral">
+                <ul class="menu">
+                    <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                    <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                    <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                    <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                    <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <section class="panel-content ficha-content">
+            <form method="post" class="ficha-form">
+                {% csrf_token %}
+
+                <div class="form-title">
+                    <h2>Ficha tecnica</h2>
+                </div>
+
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <p class="message">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <section class="client-strip">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" value="{{ cliente.nombre_completo }}" readonly>
+                </section>
+
+                <section class="block diagnostic-block">
+                    <div class="block-grid">
+                        <div>
+                            <h3>Diagnostico general</h3>
+                            <div class="question-list">
+                                <p>Procedimiento capilar en los ultimos 3 meses?</p>
+                                <p>Realiza hidratacion o reconstruccion con frecuencia?</p>
+                                <p>Utiliza con frecuencia plancha, ondulador o secador?</p>
+                                <p>Tiene algun tipo de alergia?</p>
+                                <p>Tiene algun problema hormonal?</p>
+                                <label class="shampoo-field">
+                                    <span>Que marca de shampoo utiliza?</span>
+                                    <input
+                                        type="text"
+                                        name="marca_shampoo"
+                                        maxlength="50"
+                                        value="{% if ficha %}{{ ficha.marca_shampoo }}{% endif %}">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="yes-no-grid" aria-label="Opciones si no">
+                            <span>SI</span>
+                            <span>NO</span>
+                            <input type="radio" name="general_1" value="si" {% if diagnostico_general.general_1 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_1" value="no" {% if diagnostico_general.general_1 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_2" value="si" {% if diagnostico_general.general_2 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_2" value="no" {% if diagnostico_general.general_2 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_3" value="si" {% if diagnostico_general.general_3 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_3" value="no" {% if diagnostico_general.general_3 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_4" value="si" {% if diagnostico_general.general_4 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_4" value="no" {% if diagnostico_general.general_4 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_5" value="si" {% if diagnostico_general.general_5 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_5" value="no" {% if diagnostico_general.general_5 == "no" %}checked{% endif %}>
+                        </div>
+                    </div>
+
+                    <label class="line-field">
+                        <span>Problema identificado</span>
+                        <input type="text" name="observaciones" value="{% if ficha %}{{ ficha.observaciones }}{% endif %}">
+                    </label>
+                </section>
+
+                <section class="block history-block">
+                    <h3>Historial</h3>
+
+                    <label class="history-color-field">
+                        <span>Color original del cabello</span>
+                        <input type="text" name="color_original" maxlength="50" value="{{ historial.color_original|default:'' }}">
+                    </label>
+
+                    <div class="history-grid">
+                        <div class="hair-list">
+                            <label>Cabello virgen <input type="checkbox" name="historial" value="cabello_virgen" {% if "cabello_virgen" in historial.opciones %}checked{% endif %}></label>
+                            <label>Proceso quimico <input type="checkbox" name="historial" value="proceso_quimico" {% if "proceso_quimico" in historial.opciones %}checked{% endif %}></label>
+                            <label>Quemado <input type="checkbox" name="historial" value="quemado" {% if "quemado" in historial.opciones %}checked{% endif %}></label>
+                            <label>Chicloso <input type="checkbox" name="historial" value="chicloso" {% if "chicloso" in historial.opciones %}checked{% endif %}></label>
+                            <label>Tinturado <input type="checkbox" name="historial" value="tinturado" {% if "tinturado" in historial.opciones %}checked{% endif %}></label>
+                            <label>Decolorado <input type="checkbox" name="historial" value="decolorado" {% if "decolorado" in historial.opciones %}checked{% endif %}></label>
+                        </div>
+
+                        <div class="history-notes">
+                            <label class="line-only"><span>Observación</span><input type="text" name="historial_nota_1" value="{{ historial.nota|default:'' }}"></label>
+                            <label class="line-only"><span>Fecha</span><input type="date" name="fecha_historial_1" value="{{ historial.fecha_1|default:'' }}"></label>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="block hair-diagnosis">
+                    <h3>Diagnostico capilar</h3>
+
+                    <div class="diagnosis-grid">
+                        <fieldset>
+                            <legend>Tipo de cabello</legend>
+                            <label>1 Liso <input type="radio" name="tipo_cabello" value="Liso" {% if ficha.tipo_cabello == "Liso" %}checked{% endif %}></label>
+                            <label>2 Ondulado <input type="radio" name="tipo_cabello" value="Ondulado" {% if ficha.tipo_cabello == "Ondulado" %}checked{% endif %}></label>
+                            <label>3 Rizado <input type="radio" name="tipo_cabello" value="Rizado" {% if ficha.tipo_cabello == "Rizado" %}checked{% endif %}></label>
+                            <label>4 Afro <input type="radio" name="tipo_cabello" value="Afro" {% if ficha.tipo_cabello == "Afro" %}checked{% endif %}></label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Grosor</legend>
+                            <label>Delgado <input type="radio" name="grosor" value="delgado" {% if ficha.grosor == "delgado" %}checked{% endif %}></label>
+                            <label>Medio <input type="radio" name="grosor" value="medio" {% if ficha.grosor == "medio" %}checked{% endif %}></label>
+                            <label>Grueso <input type="radio" name="grosor" value="grueso" {% if ficha.grosor == "grueso" %}checked{% endif %}></label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Elasticidad</legend>
+                            <label>Alta <input type="radio" name="elasticidad" value="alta" {% if ficha.elasticidad == "alta" %}checked{% endif %}></label>
+                            <label>Media <input type="radio" name="elasticidad" value="media" {% if ficha.elasticidad == "media" %}checked{% endif %}></label>
+                            <label>Baja <input type="radio" name="elasticidad" value="baja" {% if ficha.elasticidad == "baja" %}checked{% endif %}></label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Porosidad</legend>
+                            <label>Alta <input type="radio" name="porosidad" value="alta" {% if ficha.porosidad == "alta" %}checked{% endif %}></label>
+                            <label>Media <input type="radio" name="porosidad" value="media" {% if ficha.porosidad == "media" %}checked{% endif %}></label>
+                            <label>Baja <input type="radio" name="porosidad" value="baja" {% if ficha.porosidad == "baja" %}checked{% endif %}></label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Cuero cabelludo</legend>
+                            <label>Graso <input type="radio" name="cuero_cabelludo" value="graso" {% if ficha.cuero_cabelludo == "graso" %}checked{% endif %}></label>
+                            <label>Normal <input type="radio" name="cuero_cabelludo" value="normal" {% if ficha.cuero_cabelludo == "normal" %}checked{% endif %}></label>
+                            <label>Mixto <input type="radio" name="cuero_cabelludo" value="mixto" {% if ficha.cuero_cabelludo == "mixto" %}checked{% endif %}></label>
+                            <label>Seco <input type="radio" name="cuero_cabelludo" value="seco" {% if ficha.cuero_cabelludo == "seco" %}checked{% endif %}></label>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Textura</legend>
+                            <label>Suave <input type="radio" name="textura" value="suave" {% if ficha.textura == "suave" %}checked{% endif %}></label>
+                            <label>Poco frizz <input type="radio" name="textura" value="poco_frizz" {% if ficha.textura == "poco_frizz" %}checked{% endif %}></label>
+                            <label>Crespo <input type="radio" name="textura" value="crespo" {% if ficha.textura == "crespo" %}checked{% endif %}></label>
+                            <label>Escamoso <input type="radio" name="textura" value="escamoso" {% if ficha.textura == "escamoso" %}checked{% endif %}></label>
+                        </fieldset>
+                    </div>
+                </section>
+
+                <section class="block procedure-block">
+                    <label>
+                        <span>Procedimiento a realizar:</span>
+                        <input type="text" name="estado_cabello" value="{% if ficha %}{{ ficha.estado_cabello }}{% endif %}">
+                    </label>
+                    <label>
+                        <span>Producto utilizado:</span>
+                        <input type="text" name="tratamientos_previos" value="{% if ficha %}{{ ficha.tratamientos_previos }}{% endif %}">
+                    </label>
+                    <label>
+                        <span>Duracion aproximada teniendo los cuidados necesarios:</span>
+                        <input type="text" name="duracion_aproximada" value="{% if ficha %}{{ ficha.duracion_aproximada }}{% endif %}">
+                    </label>
+                </section>
+
+                <div class="form-actions">
+                    <button type="button" class="muted-btn" id="editarFicha">Editar</button>
+                    <button type="submit" class="muted-btn">Guardar</button>
+                </div>
+            </form>
+        </section>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById("editarFicha")?.addEventListener("click", () => {
+            document.querySelector(".ficha-form input:not([readonly])")?.focus();
+        });
+    </script>
+</body>
+</html>

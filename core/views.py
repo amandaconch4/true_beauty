@@ -77,93 +77,89 @@ def registro(request):
 
 @login_required(login_url='/login/')
 def agendar_view(request):
-    # Obtener citas del usuario actual
+    perfil_usuario = getattr(request.user, 'perfil', None)
+    desde_panel_profesional = (
+        request.GET.get('desde') == 'panel_profesional'
+        and request.user.is_authenticated
+        and request.user.is_staff
+        and perfil_usuario
+        and perfil_usuario.rol == 'profesional'
+    )
     mis_citas = Cita.objects.filter(
         cliente=request.user
     ).order_by('fecha', 'hora')
-    
+
     if request.method == 'POST':
         servicio = request.POST.get('servicio', '').strip()
         fecha_str = request.POST.get('fecha', '').strip()
         hora_str = request.POST.get('hora', '').strip()
-        
-        # Validaciones
+
         errores = []
-        
         if not servicio:
             errores.append('Debes seleccionar un servicio.')
-        
         if not fecha_str:
             errores.append('Debes seleccionar una fecha.')
-        
         if not hora_str:
             errores.append('Debes seleccionar una hora.')
-        
+
         if errores:
             for error in errores:
                 messages.error(request, error)
             return render(request, "agendar_hora.html", {
+                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
-        
-        # Buscar un profesional disponible (que no tenga cita a esa hora)
-        from datetime import datetime, time
-        
+
+        from datetime import datetime
+
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         hora = datetime.strptime(hora_str, '%H:%M').time()
-        
-        # Obtener profesionales
-        profesionales = Usuario.objects.filter(
-            perfil__rol='profesional'
-        )
-        
-        # Verificar si hay profesionales en el sistema
+        profesionales = Usuario.objects.filter(perfil__rol='profesional')
+
         if not profesionales.exists():
             messages.error(request, 'No hay profesionales configurados en el sistema. Contacta al administrador.')
             return render(request, "agendar_hora.html", {
+                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
-        
+
         profesional_asignado = None
         for profesional in profesionales:
-            # Verificar si el profesional ya tiene una cita a esa hora
             cita_existente = Cita.objects.filter(
                 profesional=profesional,
                 fecha=fecha,
                 hora=hora,
                 estado__in=['pendiente', 'realizada']
             ).first()
-            
             if not cita_existente:
                 profesional_asignado = profesional
                 break
-        
+
         if not profesional_asignado:
             messages.error(request, f'No hay profesionales disponibles el {fecha_str} a las {hora_str}. Todos los profesionales tienen citas agendadas en ese horario. Por favor, selecciona otra fecha u hora.')
             return render(request, "agendar_hora.html", {
+                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
-        
-        # Crear la cita
+
         nombres_servicios = {
             'corte': 'Corte de pelo',
             'alisado': 'Alisado',
             'botox': 'Botox capilar',
             'peinado': 'Peinado',
             'keratina': 'Tratamiento de keratina',
-            'coloracion': 'Coloración',
+            'coloracion': 'Coloracion',
         }
-        
-        cita = Cita.objects.create(
+        Cita.objects.create(
             cliente=request.user,
             profesional=profesional_asignado,
             servicio=nombres_servicios.get(servicio, servicio),
@@ -171,19 +167,15 @@ def agendar_view(request):
             hora=hora,
             estado='pendiente'
         )
-        
-        messages.success(request, f'¡Cita agendada exitosamente! Te esperamos el {fecha_str} a las {hora_str}.')
-        
-        # Actualizar la lista de citas
+        messages.success(request, f'Cita agendada exitosamente. Te esperamos el {fecha_str} a las {hora_str}.')
         mis_citas = Cita.objects.filter(
             cliente=request.user
         ).order_by('fecha', 'hora')
-    
+
     return render(request, "agendar_hora.html", {
-        'mis_citas': mis_citas
+        'desde_panel_profesional': desde_panel_profesional,
+        'mis_citas': mis_citas,
     })
-
-
 def profesional_view(request):
     next_url = request.POST.get('next') or request.GET.get('next')
 
@@ -459,9 +451,62 @@ def ficha_capilar(request, id):
     cliente = get_object_or_404(Usuario, id=id)
     ficha = getattr(cliente, 'ficha_capilar', None)
 
+    if request.method == 'POST':
+        diagnostico_general = {
+            f'general_{numero}': request.POST.get(f'general_{numero}', '')
+            for numero in range(1, 6)
+        }
+        historial = {
+            'opciones': request.POST.getlist('historial'),
+            'color_original': request.POST.get('color_original', '').strip()[:50],
+            'nota': request.POST.get('historial_nota_1', '').strip(),
+            'fecha_1': request.POST.get('fecha_historial_1', ''),
+        }
+
+        ficha, _ = FichaCapilar.objects.get_or_create(
+            usuario=cliente,
+            defaults={
+                'tipo_cabello': request.POST.get('tipo_cabello', '').strip() or 'Sin especificar',
+                'estado_cabello': request.POST.get('estado_cabello', '').strip() or 'Sin diagnostico',
+                'tratamientos_previos': request.POST.get('tratamientos_previos', '').strip(),
+                'observaciones': request.POST.get('observaciones', '').strip(),
+                'diagnostico_general': diagnostico_general,
+                'historial': historial,
+                'grosor': request.POST.get('grosor', '').strip(),
+                'elasticidad': request.POST.get('elasticidad', '').strip(),
+                'porosidad': request.POST.get('porosidad', '').strip(),
+                'cuero_cabelludo': request.POST.get('cuero_cabelludo', '').strip(),
+                'textura': request.POST.get('textura', '').strip(),
+                'marca_shampoo': request.POST.get('marca_shampoo', '').strip()[:50],
+                'duracion_aproximada': request.POST.get('duracion_aproximada', '').strip(),
+            }
+        )
+
+        if not _:
+            ficha.tipo_cabello = request.POST.get('tipo_cabello', '').strip() or 'Sin especificar'
+            ficha.estado_cabello = request.POST.get('estado_cabello', '').strip() or 'Sin diagnostico'
+            ficha.tratamientos_previos = request.POST.get('tratamientos_previos', '').strip()
+            ficha.observaciones = request.POST.get('observaciones', '').strip()
+            ficha.diagnostico_general = diagnostico_general
+            ficha.historial = historial
+            ficha.grosor = request.POST.get('grosor', '').strip()
+            ficha.elasticidad = request.POST.get('elasticidad', '').strip()
+            ficha.porosidad = request.POST.get('porosidad', '').strip()
+            ficha.cuero_cabelludo = request.POST.get('cuero_cabelludo', '').strip()
+            ficha.textura = request.POST.get('textura', '').strip()
+            ficha.marca_shampoo = request.POST.get('marca_shampoo', '').strip()[:50]
+            ficha.duracion_aproximada = request.POST.get('duracion_aproximada', '').strip()
+
+        ficha.save()
+
+        messages.success(request, 'Ficha capilar guardada correctamente.')
+        return redirect('ficha_capilar', id=cliente.id)
+
     return render(request, 'ficha_capilar.html', {
         'cliente': cliente,
-        'ficha': ficha
+        'ficha': ficha,
+        'diagnostico_general': ficha.diagnostico_general if ficha else {},
+        'historial': ficha.historial if ficha else {},
     })
 
 

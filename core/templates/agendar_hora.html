@@ -16,7 +16,9 @@
         <div class="top-header__bar">
             <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
             <div class="top-header__actions">
-                {% if user.is_authenticated %}
+                {% if desde_panel_profesional %}
+                    <a class="login-link panel-return-link" href="{% url 'panel_profesional' %}">Volver a panel profesional</a>
+                {% elif user.is_authenticated %}
                     <a class="login-link" href="{% url 'perfil' %}">Mi Perfil</a>
                     <form method="post" action="{% url 'logout' %}" class="header-logout-form">
                         {% csrf_token %}
@@ -35,8 +37,8 @@
                 <li><a href="{% url 'index' %}">Inicio</a></li>
                 <li><a href="{% url 'servicios' %}">Servicios</a></li>
                 <li><a href="#">Recomendación de productos</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'agendar_hora' %}" class="menu-active">Agenda tu hora</a></li>
+                <li><a href="{% url 'agendar_hora' %}" class="menu-active">Agenda tu hora</a></li>
+                {% if user.is_authenticated and not desde_panel_profesional %}
                     <li><a href="{% url 'mis_citas' %}">Mis Citas</a></li>
                 {% endif %}
             </ul>
@@ -52,40 +54,40 @@
                         <label for="servicio">Servicio:</label>
                         <select id="servicio" name="servicio" required>
                             <option value="">Selecciona un servicio</option>
-                            <option value="corte">Corte de pelo</option>
-                            <option value="alisado">Alisado</option>
-                            <option value="botox">Botox capilar</option>
-                            <option value="peinado">Peinado</option>
-                            <option value="keratina">Tratamiento de keratina</option>
-                            <option value="coloracion">Coloración</option>
+                            <option value="corte" {% if servicio_seleccionado == "corte" %}selected{% endif %}>Corte de pelo</option>
+                            <option value="alisado" {% if servicio_seleccionado == "alisado" %}selected{% endif %}>Alisado</option>
+                            <option value="botox" {% if servicio_seleccionado == "botox" %}selected{% endif %}>Botox capilar</option>
+                            <option value="peinado" {% if servicio_seleccionado == "peinado" %}selected{% endif %}>Peinado</option>
+                            <option value="keratina" {% if servicio_seleccionado == "keratina" %}selected{% endif %}>Tratamiento de keratina</option>
+                            <option value="coloracion" {% if servicio_seleccionado == "coloracion" %}selected{% endif %}>Coloración</option>
                         </select>
-                    </div> 
+                    </div>
                     <div class="form-group">
                         <label for="fecha">Fecha:</label>
-                        <input type="date" id="fecha" name="fecha" min="{% now 'Y-m-d' %}" required>
+                        <input type="date" id="fecha" name="fecha" min="{% now 'Y-m-d' %}" value="{{ fecha_seleccionada|default:'' }}" required>
                     </div>
                     <div class="form-group">
                         <label for="hora">Hora:</label>
                         <select id="hora" name="hora" required>
                             <option value="">Selecciona una hora</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
+                            <option value="09:00" {% if hora_seleccionada == "09:00" %}selected{% endif %}>09:00</option>
+                            <option value="09:30" {% if hora_seleccionada == "09:30" %}selected{% endif %}>09:30</option>
+                            <option value="10:00" {% if hora_seleccionada == "10:00" %}selected{% endif %}>10:00</option>
+                            <option value="10:30" {% if hora_seleccionada == "10:30" %}selected{% endif %}>10:30</option>
+                            <option value="11:00" {% if hora_seleccionada == "11:00" %}selected{% endif %}>11:00</option>
+                            <option value="11:30" {% if hora_seleccionada == "11:30" %}selected{% endif %}>11:30</option>
+                            <option value="12:00" {% if hora_seleccionada == "12:00" %}selected{% endif %}>12:00</option>
+                            <option value="12:30" {% if hora_seleccionada == "12:30" %}selected{% endif %}>12:30</option>
+                            <option value="13:00" {% if hora_seleccionada == "13:00" %}selected{% endif %}>13:00</option>
+                            <option value="13:30" {% if hora_seleccionada == "13:30" %}selected{% endif %}>13:30</option>
+                            <option value="14:00" {% if hora_seleccionada == "14:00" %}selected{% endif %}>14:00</option>
+                            <option value="14:30" {% if hora_seleccionada == "14:30" %}selected{% endif %}>14:30</option>
+                            <option value="15:00" {% if hora_seleccionada == "15:00" %}selected{% endif %}>15:00</option>
+                            <option value="15:30" {% if hora_seleccionada == "15:30" %}selected{% endif %}>15:30</option>
+                            <option value="16:00" {% if hora_seleccionada == "16:00" %}selected{% endif %}>16:00</option>
+                            <option value="16:30" {% if hora_seleccionada == "16:30" %}selected{% endif %}>16:30</option>
+                            <option value="17:00" {% if hora_seleccionada == "17:00" %}selected{% endif %}>17:00</option>
+                            <option value="17:30" {% if hora_seleccionada == "17:30" %}selected{% endif %}>17:30</option>
                         </select>
                     </div>
                     <button type="submit" class="btn-submit">Agendar cita</button>

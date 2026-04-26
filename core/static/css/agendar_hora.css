@@ -85,6 +85,25 @@ body {
     background-color: #f0dfcb;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.panel-return-link {
+    background-color: var(--brown-700);
+    border-color: var(--brown-700);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(63, 48, 35, 0.16);
+}
+
+.panel-return-link:hover {
+    background-color: #5c4532;
+}
+
 .header-logout-form {
     margin: 0;
     display: inline-flex;

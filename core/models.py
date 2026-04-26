@@ -45,6 +45,15 @@ class FichaCapilar(models.Model):
     estado_cabello = models.TextField()
     tratamientos_previos = models.TextField(blank=True)
     observaciones = models.TextField(blank=True)
+    diagnostico_general = models.JSONField(default=dict, blank=True)
+    historial = models.JSONField(default=dict, blank=True)
+    grosor = models.CharField(max_length=20, blank=True)
+    elasticidad = models.CharField(max_length=20, blank=True)
+    porosidad = models.CharField(max_length=20, blank=True)
+    cuero_cabelludo = models.CharField(max_length=20, blank=True)
+    textura = models.CharField(max_length=20, blank=True)
+    marca_shampoo = models.CharField(max_length=50, blank=True)
+    duracion_aproximada = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"Ficha de {self.usuario.username}"
