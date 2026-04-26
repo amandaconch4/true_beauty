@@ -1,5 +1,6 @@
 import re
 from datetime import date
+from types import SimpleNamespace
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -9,7 +10,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import UsuarioForm
-from .models import Cita, PerfilUsuario, Tratamiento, Usuario, FichaCapilar
+from .models import Cita, CuidadoRecomendacion, PerfilUsuario, Tratamiento, Usuario, FichaCapilar
 
 
 def index(request):
@@ -463,6 +464,62 @@ def ficha_capilar(request, id):
             'fecha_1': request.POST.get('fecha_historial_1', ''),
         }
 
+        campos_requeridos = {
+            'marca_shampoo': 'marca de shampoo',
+            'observaciones': 'problema identificado',
+            'color_original': 'color original del cabello',
+            'historial_nota_1': 'observacion del historial',
+            'fecha_historial_1': 'fecha del historial',
+            'estado_cabello': 'procedimiento a realizar',
+            'tratamientos_previos': 'producto utilizado',
+            'duracion_aproximada': 'duracion aproximada',
+        }
+        grupos_requeridos = {
+            'general_1': 'procedimiento capilar en los ultimos 3 meses',
+            'general_2': 'hidratacion o reconstruccion frecuente',
+            'general_3': 'uso frecuente de plancha, ondulador o secador',
+            'general_4': 'alergias',
+            'general_5': 'problema hormonal',
+            'tipo_cabello': 'tipo de cabello',
+            'grosor': 'grosor',
+            'elasticidad': 'elasticidad',
+            'porosidad': 'porosidad',
+            'cuero_cabelludo': 'cuero cabelludo',
+            'textura': 'textura',
+        }
+        faltantes = [
+            etiqueta
+            for campo, etiqueta in campos_requeridos.items()
+            if not request.POST.get(campo, '').strip()
+        ]
+        faltantes.extend(
+            etiqueta
+            for grupo, etiqueta in grupos_requeridos.items()
+            if not request.POST.get(grupo, '').strip()
+        )
+
+        if faltantes:
+            messages.error(request, 'Debes completar todos los campos antes de guardar la ficha.')
+            ficha_form = SimpleNamespace(
+                tipo_cabello=request.POST.get('tipo_cabello', '').strip(),
+                estado_cabello=request.POST.get('estado_cabello', '').strip(),
+                tratamientos_previos=request.POST.get('tratamientos_previos', '').strip(),
+                observaciones=request.POST.get('observaciones', '').strip(),
+                grosor=request.POST.get('grosor', '').strip(),
+                elasticidad=request.POST.get('elasticidad', '').strip(),
+                porosidad=request.POST.get('porosidad', '').strip(),
+                cuero_cabelludo=request.POST.get('cuero_cabelludo', '').strip(),
+                textura=request.POST.get('textura', '').strip(),
+                marca_shampoo=request.POST.get('marca_shampoo', '').strip()[:50],
+                duracion_aproximada=request.POST.get('duracion_aproximada', '').strip(),
+            )
+            return render(request, 'ficha_capilar.html', {
+                'cliente': cliente,
+                'ficha': ficha_form,
+                'diagnostico_general': diagnostico_general,
+                'historial': historial,
+            })
+
         ficha, _ = FichaCapilar.objects.get_or_create(
             usuario=cliente,
             defaults={
@@ -532,9 +589,102 @@ def reservas_cliente(request, id):
 
 def cuidados_cliente(request, id):
     cliente = get_object_or_404(Usuario, id=id)
+    cuidados_lista = cliente.cuidados_recomendaciones.all()
+    cuidado_id = request.GET.get('cuidado_id')
+    cuidado_actual = None
 
-    return render(request, 'cuidados_cliente.html', {
-        'cliente': cliente
+    if cuidado_id:
+        cuidado_actual = cuidados_lista.filter(id=cuidado_id).first()
+    if cuidado_actual is None:
+        cuidado_actual = cuidados_lista.first()
+
+    def cuidado_to_form(cuidado):
+        return {
+            'id': cuidado.id if cuidado else '',
+            'fecha': cuidado.fecha.isoformat() if cuidado and cuidado.fecha else '',
+            'recomendacion_casa': cuidado.recomendacion_casa if cuidado else '',
+            'producto_recomendado': cuidado.producto_recomendado if cuidado else '',
+            'modo_uso': cuidado.modo_uso if cuidado else '',
+            'frecuencia': cuidado.frecuencia if cuidado else '',
+            'fecha_inicio': cuidado.fecha_inicio.isoformat() if cuidado and cuidado.fecha_inicio else '',
+            'fecha_termino': cuidado.fecha_termino.isoformat() if cuidado and cuidado.fecha_termino else '',
+        }
+
+    cuidados_form = cuidado_to_form(cuidado_actual)
+
+    base_context = {
+        'cliente': cliente,
+        'cuidados_lista': cuidados_lista,
+        'cuidados_form': cuidados_form,
+        'hay_tratamiento': cuidado_actual is not None,
+    }
+
+    if request.method == 'POST':
+        cuidado_post_id = request.POST.get('cuidado_id', '').strip()
+        campos_requeridos = {
+            'fecha': 'fecha',
+            'recomendacion_casa': 'recomendacion para casa',
+            'producto_recomendado': 'producto recomendado',
+            'modo_uso': 'modo de uso',
+            'frecuencia': 'frecuencia',
+            'fecha_inicio': 'fecha de inicio',
+            'fecha_termino': 'fecha de termino',
+        }
+        faltantes = [
+            etiqueta
+            for campo, etiqueta in campos_requeridos.items()
+            if not request.POST.get(campo, '').strip()
+        ]
+
+        if faltantes:
+            messages.error(request, 'Debes completar todos los campos antes de guardar los cuidados.')
+            cuidados_form = {
+                'id': cuidado_post_id,
+                'fecha': request.POST.get('fecha', ''),
+                'recomendacion_casa': request.POST.get('recomendacion_casa', '').strip(),
+                'producto_recomendado': request.POST.get('producto_recomendado', '').strip(),
+                'modo_uso': request.POST.get('modo_uso', '').strip(),
+                'frecuencia': request.POST.get('frecuencia', '').strip(),
+                'fecha_inicio': request.POST.get('fecha_inicio', ''),
+                'fecha_termino': request.POST.get('fecha_termino', ''),
+            }
+            return render(request, 'cuidados_recomendaciones.html', {
+                **base_context,
+                'cuidados_form': cuidados_form,
+                'hay_tratamiento': bool(cuidado_post_id),
+            })
+
+        datos_cuidado = {
+            'fecha': request.POST.get('fecha'),
+            'recomendacion_casa': request.POST.get('recomendacion_casa', '').strip(),
+            'producto_recomendado': request.POST.get('producto_recomendado', '').strip(),
+            'modo_uso': request.POST.get('modo_uso', '').strip(),
+            'frecuencia': request.POST.get('frecuencia', '').strip(),
+            'fecha_inicio': request.POST.get('fecha_inicio'),
+            'fecha_termino': request.POST.get('fecha_termino'),
+        }
+
+        cuidado_editado = None
+        if cuidado_post_id:
+            cuidado_editado = cuidados_lista.filter(id=cuidado_post_id).first()
+
+        if cuidado_editado:
+            for campo, valor in datos_cuidado.items():
+                setattr(cuidado_editado, campo, valor)
+            cuidado_editado.save()
+            mensaje = 'Tratamiento actualizado correctamente.'
+        else:
+            cuidado_editado = CuidadoRecomendacion.objects.create(
+                cliente=cliente,
+                **datos_cuidado
+            )
+            mensaje = 'Tratamiento agregado correctamente.'
+
+        messages.success(request, mensaje)
+        return redirect(f"{request.path}?cuidado_id={cuidado_editado.id}")
+
+    return render(request, 'cuidados_recomendaciones.html', {
+        **base_context,
     })
 
 @login_required

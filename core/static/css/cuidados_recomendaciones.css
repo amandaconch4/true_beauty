@@ -1,0 +1,157 @@
+.cuidados-content {
+    min-width: 0;
+}
+
+.cuidados-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.cuidados-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.saved-treatments {
+    display: grid;
+    gap: 0.65rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(227, 203, 176, 0.82);
+    border-radius: 18px;
+    background: rgba(255, 253, 249, 0.9);
+    box-shadow: var(--shadow);
+}
+
+.saved-treatments span {
+    color: var(--brown-700);
+    font-weight: 800;
+}
+
+.treatment-links {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.treatment-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #e3cbb0;
+    border-radius: 999px;
+    color: var(--brown-700);
+    background: #fffaf2;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.treatment-links .active-treatment {
+    color: #fff;
+    background: #b88355;
+    border-color: #b88355;
+}
+
+.care-date {
+    display: grid;
+    grid-template-columns: 80px minmax(160px, 220px);
+    align-items: center;
+    justify-content: end;
+    gap: 0.75rem;
+}
+
+.care-date label,
+.care-field span,
+.care-dates-grid span {
+    color: var(--brown-700);
+    font-weight: 800;
+}
+
+.care-field {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.28fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface-strong);
+    color: var(--text);
+    padding: 0.75rem 0.85rem;
+    font: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--sand-500);
+    box-shadow: 0 0 0 4px rgba(198, 157, 116, 0.14);
+}
+
+.cuidados-form.is-readonly input:not([readonly]),
+.cuidados-form.is-readonly textarea {
+    background-color: #ead8c4;
+    border-color: #c9a27d;
+    color: #4f3a29;
+    cursor: not-allowed;
+}
+
+.care-dates-grid {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.2rem;
+    padding-left: calc(28% + 1rem);
+}
+
+.care-dates-grid label {
+    display: grid;
+    grid-template-columns: 150px minmax(160px, 220px);
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.care-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.4rem;
+}
+
+.care-actions .care-btn {
+    border-radius: 12px;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 0.9rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+    .care-date,
+    .care-field,
+    .care-dates-grid label {
+        grid-template-columns: 1fr;
+    }
+
+    .care-date {
+        justify-content: stretch;
+    }
+
+    .care-dates-grid {
+        padding-left: 0;
+    }
+
+    .care-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .care-actions .muted-btn {
+        width: 100%;
+    }
+}

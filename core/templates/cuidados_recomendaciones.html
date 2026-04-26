@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuidados y recomendaciones | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=12">
+    <link rel="stylesheet" href="{% static 'css/cuidados_recomendaciones.css' %}?v=3">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Profesional</h2>
+                    <p class="sidebar-user">{{ request.user.nombre_completo }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                        <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <section class="panel-content cuidados-content">
+                <form method="post" class="cuidados-form" data-hay-tratamiento="{{ hay_tratamiento|yesno:'true,false' }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="cuidado_id" id="cuidadoId" value="{{ cuidados_form.id }}">
+
+                    <div class="form-title">
+                        <h2>Cuidados y recomendaciones</h2>
+                    </div>
+
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <p class="message">{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <section class="client-strip">
+                        <label for="nombre">Cliente</label>
+                        <input type="text" id="nombre" value="{{ cliente.nombre_completo }}" readonly>
+                    </section>
+
+                    {% if cuidados_lista %}
+                        <section class="saved-treatments" aria-label="Tratamientos guardados">
+                            <span>Tratamientos guardados</span>
+                            <div class="treatment-links">
+                                {% for cuidado in cuidados_lista %}
+                                    <a
+                                        href="{% url 'cuidados_cliente' cliente.id %}?cuidado_id={{ cuidado.id }}"
+                                        class="{% if cuidados_form.id == cuidado.id %}active-treatment{% endif %}">
+                                        {{ cuidado.fecha|date:"d/m/Y" }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endif %}
+
+                    <section class="block cuidados-card">
+                        <div class="care-date">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" id="fecha" name="fecha" value="{{ cuidados_form.fecha }}" required>
+                        </div>
+
+                        <label class="care-field">
+                            <span>Recomendacion para casa</span>
+                            <textarea name="recomendacion_casa" rows="3" required>{{ cuidados_form.recomendacion_casa }}</textarea>
+                        </label>
+
+                        <label class="care-field">
+                            <span>Producto recomendado</span>
+                            <textarea name="producto_recomendado" rows="3" required>{{ cuidados_form.producto_recomendado }}</textarea>
+                        </label>
+
+                        <label class="care-field">
+                            <span>Modo de uso</span>
+                            <textarea name="modo_uso" rows="4" required>{{ cuidados_form.modo_uso }}</textarea>
+                        </label>
+
+                        <label class="care-field">
+                            <span>Frecuencia</span>
+                            <textarea name="frecuencia" rows="3" required>{{ cuidados_form.frecuencia }}</textarea>
+                        </label>
+
+                        <div class="care-dates-grid">
+                            <label>
+                                <span>Fecha de inicio</span>
+                                <input type="date" name="fecha_inicio" value="{{ cuidados_form.fecha_inicio }}" required>
+                            </label>
+                            <label>
+                                <span>Fecha de termino</span>
+                                <input type="date" name="fecha_termino" value="{{ cuidados_form.fecha_termino }}" required>
+                            </label>
+                        </div>
+
+                        <div class="care-actions">
+                            <button type="button" class="muted-btn care-btn" id="agregarTratamiento">+ Agregar tratamiento</button>
+                            <button type="button" class="muted-btn care-btn" id="modificarTratamiento">Modificar</button>
+                            <button type="submit" class="muted-btn care-btn" id="guardarTratamiento">Guardar</button>
+                        </div>
+                    </section>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const cuidadosForm = document.querySelector(".cuidados-form");
+        const agregarTratamiento = document.getElementById("agregarTratamiento");
+        const modificarTratamiento = document.getElementById("modificarTratamiento");
+        const guardarTratamiento = document.getElementById("guardarTratamiento");
+        const cuidadoId = document.getElementById("cuidadoId");
+        const camposTratamiento = cuidadosForm?.querySelectorAll("input:not([readonly]):not([type='hidden']), textarea");
+        const hayTratamiento = cuidadosForm?.dataset.hayTratamiento === "true";
+
+        function bloquearTratamiento() {
+            camposTratamiento?.forEach((campo) => {
+                campo.disabled = true;
+            });
+            guardarTratamiento.disabled = true;
+            cuidadosForm?.classList.add("is-readonly");
+        }
+
+        function habilitarTratamiento() {
+            camposTratamiento?.forEach((campo) => {
+                campo.disabled = false;
+            });
+            guardarTratamiento.disabled = false;
+            cuidadosForm?.classList.remove("is-readonly");
+            cuidadosForm?.querySelector("input:not([readonly]):not([type='hidden']), textarea")?.focus();
+        }
+
+        function limpiarTratamiento() {
+            if (cuidadoId) cuidadoId.value = "";
+            camposTratamiento?.forEach((campo) => {
+                campo.disabled = false;
+                campo.value = "";
+            });
+            guardarTratamiento.disabled = false;
+            cuidadosForm?.classList.remove("is-readonly");
+            cuidadosForm?.querySelector("input:not([readonly]):not([type='hidden']), textarea")?.focus();
+        }
+
+        if (hayTratamiento) {
+            bloquearTratamiento();
+        } else {
+            habilitarTratamiento();
+        }
+
+        agregarTratamiento?.addEventListener("click", limpiarTratamiento);
+        modificarTratamiento?.addEventListener("click", habilitarTratamiento);
+    </script>
+</body>
+</html>

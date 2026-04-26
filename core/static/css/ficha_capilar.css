@@ -3,6 +3,7 @@
     --cream-200: #f3e8d9;
     --sand-300: #e4cfb5;
     --sand-500: #c69d74;
+    --selection-brown: #b88355;
     --brown-700: #6d4c35;
     --brown-900: #3f2c20;
     --surface: rgba(255, 252, 247, 0.94);
@@ -329,7 +330,7 @@ input[type="radio"],
 input[type="checkbox"] {
     width: 15px;
     height: 15px;
-    accent-color: var(--sand-500);
+    accent-color: var(--selection-brown);
 }
 
 .line-field {
@@ -436,6 +437,19 @@ legend {
     font-size: 0.9rem;
 }
 
+.ficha-form.is-readonly input:not([readonly]) {
+    background-color: #ead8c4;
+    border-color: #c9a27d;
+    color: #4f3a29;
+    cursor: not-allowed;
+}
+
+.ficha-form.is-readonly input[type="radio"],
+.ficha-form.is-readonly input[type="checkbox"] {
+    accent-color: var(--selection-brown);
+    opacity: 1;
+}
+
 .form-actions {
     display: flex;
     justify-content: center;
@@ -466,6 +480,13 @@ legend {
 .muted-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 18px 30px rgba(109, 76, 53, 0.2);
+}
+
+.muted-btn:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+    opacity: 0.55;
+    transform: none;
 }
 
 @media (max-width: 960px) {

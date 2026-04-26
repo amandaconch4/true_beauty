@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha tecnica | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=9">
+    <link rel="stylesheet" href="{% static 'css/ficha_capilar.css' %}?v=12">
 </head>
 <body>
     <header class="top-header">
@@ -76,6 +76,7 @@
                                         type="text"
                                         name="marca_shampoo"
                                         maxlength="50"
+                                        required
                                         value="{% if ficha %}{{ ficha.marca_shampoo }}{% endif %}">
                                 </label>
                             </div>
@@ -84,22 +85,22 @@
                         <div class="yes-no-grid" aria-label="Opciones si no">
                             <span>SI</span>
                             <span>NO</span>
-                            <input type="radio" name="general_1" value="si" {% if diagnostico_general.general_1 == "si" %}checked{% endif %}>
-                            <input type="radio" name="general_1" value="no" {% if diagnostico_general.general_1 == "no" %}checked{% endif %}>
-                            <input type="radio" name="general_2" value="si" {% if diagnostico_general.general_2 == "si" %}checked{% endif %}>
-                            <input type="radio" name="general_2" value="no" {% if diagnostico_general.general_2 == "no" %}checked{% endif %}>
-                            <input type="radio" name="general_3" value="si" {% if diagnostico_general.general_3 == "si" %}checked{% endif %}>
-                            <input type="radio" name="general_3" value="no" {% if diagnostico_general.general_3 == "no" %}checked{% endif %}>
-                            <input type="radio" name="general_4" value="si" {% if diagnostico_general.general_4 == "si" %}checked{% endif %}>
-                            <input type="radio" name="general_4" value="no" {% if diagnostico_general.general_4 == "no" %}checked{% endif %}>
-                            <input type="radio" name="general_5" value="si" {% if diagnostico_general.general_5 == "si" %}checked{% endif %}>
-                            <input type="radio" name="general_5" value="no" {% if diagnostico_general.general_5 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_1" value="si" required {% if diagnostico_general.general_1 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_1" value="no" required {% if diagnostico_general.general_1 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_2" value="si" required {% if diagnostico_general.general_2 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_2" value="no" required {% if diagnostico_general.general_2 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_3" value="si" required {% if diagnostico_general.general_3 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_3" value="no" required {% if diagnostico_general.general_3 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_4" value="si" required {% if diagnostico_general.general_4 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_4" value="no" required {% if diagnostico_general.general_4 == "no" %}checked{% endif %}>
+                            <input type="radio" name="general_5" value="si" required {% if diagnostico_general.general_5 == "si" %}checked{% endif %}>
+                            <input type="radio" name="general_5" value="no" required {% if diagnostico_general.general_5 == "no" %}checked{% endif %}>
                         </div>
                     </div>
 
                     <label class="line-field">
                         <span>Problema identificado</span>
-                        <input type="text" name="observaciones" value="{% if ficha %}{{ ficha.observaciones }}{% endif %}">
+                        <input type="text" name="observaciones" value="{% if ficha %}{{ ficha.observaciones }}{% endif %}" required>
                     </label>
                 </section>
 
@@ -108,7 +109,7 @@
 
                     <label class="history-color-field">
                         <span>Color original del cabello</span>
-                        <input type="text" name="color_original" maxlength="50" value="{{ historial.color_original|default:'' }}">
+                        <input type="text" name="color_original" maxlength="50" value="{{ historial.color_original|default:'' }}" required>
                     </label>
 
                     <div class="history-grid">
@@ -122,8 +123,8 @@
                         </div>
 
                         <div class="history-notes">
-                            <label class="line-only"><span>Observación</span><input type="text" name="historial_nota_1" value="{{ historial.nota|default:'' }}"></label>
-                            <label class="line-only"><span>Fecha</span><input type="date" name="fecha_historial_1" value="{{ historial.fecha_1|default:'' }}"></label>
+                            <label class="line-only"><span>Observación</span><input type="text" name="historial_nota_1" value="{{ historial.nota|default:'' }}" required></label>
+                            <label class="line-only"><span>Fecha</span><input type="date" name="fecha_historial_1" value="{{ historial.fecha_1|default:'' }}" required></label>
                         </div>
                     </div>
                 </section>
@@ -134,47 +135,47 @@
                     <div class="diagnosis-grid">
                         <fieldset>
                             <legend>Tipo de cabello</legend>
-                            <label>1 Liso <input type="radio" name="tipo_cabello" value="Liso" {% if ficha.tipo_cabello == "Liso" %}checked{% endif %}></label>
-                            <label>2 Ondulado <input type="radio" name="tipo_cabello" value="Ondulado" {% if ficha.tipo_cabello == "Ondulado" %}checked{% endif %}></label>
-                            <label>3 Rizado <input type="radio" name="tipo_cabello" value="Rizado" {% if ficha.tipo_cabello == "Rizado" %}checked{% endif %}></label>
-                            <label>4 Afro <input type="radio" name="tipo_cabello" value="Afro" {% if ficha.tipo_cabello == "Afro" %}checked{% endif %}></label>
+                            <label>1 Liso <input type="radio" name="tipo_cabello" value="Liso" required {% if ficha.tipo_cabello == "Liso" %}checked{% endif %}></label>
+                            <label>2 Ondulado <input type="radio" name="tipo_cabello" value="Ondulado" required {% if ficha.tipo_cabello == "Ondulado" %}checked{% endif %}></label>
+                            <label>3 Rizado <input type="radio" name="tipo_cabello" value="Rizado" required {% if ficha.tipo_cabello == "Rizado" %}checked{% endif %}></label>
+                            <label>4 Afro <input type="radio" name="tipo_cabello" value="Afro" required {% if ficha.tipo_cabello == "Afro" %}checked{% endif %}></label>
                         </fieldset>
 
                         <fieldset>
                             <legend>Grosor</legend>
-                            <label>Delgado <input type="radio" name="grosor" value="delgado" {% if ficha.grosor == "delgado" %}checked{% endif %}></label>
-                            <label>Medio <input type="radio" name="grosor" value="medio" {% if ficha.grosor == "medio" %}checked{% endif %}></label>
-                            <label>Grueso <input type="radio" name="grosor" value="grueso" {% if ficha.grosor == "grueso" %}checked{% endif %}></label>
+                            <label>Delgado <input type="radio" name="grosor" value="delgado" required {% if ficha.grosor == "delgado" %}checked{% endif %}></label>
+                            <label>Medio <input type="radio" name="grosor" value="medio" required {% if ficha.grosor == "medio" %}checked{% endif %}></label>
+                            <label>Grueso <input type="radio" name="grosor" value="grueso" required {% if ficha.grosor == "grueso" %}checked{% endif %}></label>
                         </fieldset>
 
                         <fieldset>
                             <legend>Elasticidad</legend>
-                            <label>Alta <input type="radio" name="elasticidad" value="alta" {% if ficha.elasticidad == "alta" %}checked{% endif %}></label>
-                            <label>Media <input type="radio" name="elasticidad" value="media" {% if ficha.elasticidad == "media" %}checked{% endif %}></label>
-                            <label>Baja <input type="radio" name="elasticidad" value="baja" {% if ficha.elasticidad == "baja" %}checked{% endif %}></label>
+                            <label>Alta <input type="radio" name="elasticidad" value="alta" required {% if ficha.elasticidad == "alta" %}checked{% endif %}></label>
+                            <label>Media <input type="radio" name="elasticidad" value="media" required {% if ficha.elasticidad == "media" %}checked{% endif %}></label>
+                            <label>Baja <input type="radio" name="elasticidad" value="baja" required {% if ficha.elasticidad == "baja" %}checked{% endif %}></label>
                         </fieldset>
 
                         <fieldset>
                             <legend>Porosidad</legend>
-                            <label>Alta <input type="radio" name="porosidad" value="alta" {% if ficha.porosidad == "alta" %}checked{% endif %}></label>
-                            <label>Media <input type="radio" name="porosidad" value="media" {% if ficha.porosidad == "media" %}checked{% endif %}></label>
-                            <label>Baja <input type="radio" name="porosidad" value="baja" {% if ficha.porosidad == "baja" %}checked{% endif %}></label>
+                            <label>Alta <input type="radio" name="porosidad" value="alta" required {% if ficha.porosidad == "alta" %}checked{% endif %}></label>
+                            <label>Media <input type="radio" name="porosidad" value="media" required {% if ficha.porosidad == "media" %}checked{% endif %}></label>
+                            <label>Baja <input type="radio" name="porosidad" value="baja" required {% if ficha.porosidad == "baja" %}checked{% endif %}></label>
                         </fieldset>
 
                         <fieldset>
                             <legend>Cuero cabelludo</legend>
-                            <label>Graso <input type="radio" name="cuero_cabelludo" value="graso" {% if ficha.cuero_cabelludo == "graso" %}checked{% endif %}></label>
-                            <label>Normal <input type="radio" name="cuero_cabelludo" value="normal" {% if ficha.cuero_cabelludo == "normal" %}checked{% endif %}></label>
-                            <label>Mixto <input type="radio" name="cuero_cabelludo" value="mixto" {% if ficha.cuero_cabelludo == "mixto" %}checked{% endif %}></label>
-                            <label>Seco <input type="radio" name="cuero_cabelludo" value="seco" {% if ficha.cuero_cabelludo == "seco" %}checked{% endif %}></label>
+                            <label>Graso <input type="radio" name="cuero_cabelludo" value="graso" required {% if ficha.cuero_cabelludo == "graso" %}checked{% endif %}></label>
+                            <label>Normal <input type="radio" name="cuero_cabelludo" value="normal" required {% if ficha.cuero_cabelludo == "normal" %}checked{% endif %}></label>
+                            <label>Mixto <input type="radio" name="cuero_cabelludo" value="mixto" required {% if ficha.cuero_cabelludo == "mixto" %}checked{% endif %}></label>
+                            <label>Seco <input type="radio" name="cuero_cabelludo" value="seco" required {% if ficha.cuero_cabelludo == "seco" %}checked{% endif %}></label>
                         </fieldset>
 
                         <fieldset>
                             <legend>Textura</legend>
-                            <label>Suave <input type="radio" name="textura" value="suave" {% if ficha.textura == "suave" %}checked{% endif %}></label>
-                            <label>Poco frizz <input type="radio" name="textura" value="poco_frizz" {% if ficha.textura == "poco_frizz" %}checked{% endif %}></label>
-                            <label>Crespo <input type="radio" name="textura" value="crespo" {% if ficha.textura == "crespo" %}checked{% endif %}></label>
-                            <label>Escamoso <input type="radio" name="textura" value="escamoso" {% if ficha.textura == "escamoso" %}checked{% endif %}></label>
+                            <label>Suave <input type="radio" name="textura" value="suave" required {% if ficha.textura == "suave" %}checked{% endif %}></label>
+                            <label>Poco frizz <input type="radio" name="textura" value="poco_frizz" required {% if ficha.textura == "poco_frizz" %}checked{% endif %}></label>
+                            <label>Crespo <input type="radio" name="textura" value="crespo" required {% if ficha.textura == "crespo" %}checked{% endif %}></label>
+                            <label>Escamoso <input type="radio" name="textura" value="escamoso" required {% if ficha.textura == "escamoso" %}checked{% endif %}></label>
                         </fieldset>
                     </div>
                 </section>
@@ -182,21 +183,21 @@
                 <section class="block procedure-block">
                     <label>
                         <span>Procedimiento a realizar:</span>
-                        <input type="text" name="estado_cabello" value="{% if ficha %}{{ ficha.estado_cabello }}{% endif %}">
+                        <input type="text" name="estado_cabello" value="{% if ficha %}{{ ficha.estado_cabello }}{% endif %}" required>
                     </label>
                     <label>
                         <span>Producto utilizado:</span>
-                        <input type="text" name="tratamientos_previos" value="{% if ficha %}{{ ficha.tratamientos_previos }}{% endif %}">
+                        <input type="text" name="tratamientos_previos" value="{% if ficha %}{{ ficha.tratamientos_previos }}{% endif %}" required>
                     </label>
                     <label>
                         <span>Duracion aproximada teniendo los cuidados necesarios:</span>
-                        <input type="text" name="duracion_aproximada" value="{% if ficha %}{{ ficha.duracion_aproximada }}{% endif %}">
+                        <input type="text" name="duracion_aproximada" value="{% if ficha %}{{ ficha.duracion_aproximada }}{% endif %}" required>
                     </label>
                 </section>
 
                 <div class="form-actions">
                     <button type="button" class="muted-btn" id="editarFicha">Editar</button>
-                    <button type="submit" class="muted-btn">Guardar</button>
+                    <button type="submit" class="muted-btn" id="guardarFicha" disabled>Guardar</button>
                 </div>
             </form>
         </section>
@@ -204,9 +205,30 @@
     </main>
 
     <script>
-        document.getElementById("editarFicha")?.addEventListener("click", () => {
-            document.querySelector(".ficha-form input:not([readonly])")?.focus();
-        });
+        const fichaForm = document.querySelector(".ficha-form");
+        const editarFicha = document.getElementById("editarFicha");
+        const guardarFicha = document.getElementById("guardarFicha");
+        const camposEditables = fichaForm?.querySelectorAll("input:not([readonly]), select, textarea");
+
+        function bloquearFicha() {
+            camposEditables?.forEach((campo) => {
+                campo.disabled = true;
+            });
+            guardarFicha.disabled = true;
+            fichaForm?.classList.add("is-readonly");
+        }
+
+        function habilitarFicha() {
+            camposEditables?.forEach((campo) => {
+                campo.disabled = false;
+            });
+            guardarFicha.disabled = false;
+            fichaForm?.classList.remove("is-readonly");
+            fichaForm?.querySelector("input:not([readonly]):not([type='hidden'])")?.focus();
+        }
+
+        bloquearFicha();
+        editarFicha?.addEventListener("click", habilitarFicha);
     </script>
 </body>
 </html>

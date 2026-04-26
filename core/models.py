@@ -84,6 +84,32 @@ class Tratamiento(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.usuario.username}"
 
+
+class CuidadoRecomendacion(models.Model):
+    cliente = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='cuidados_recomendaciones'
+    )
+    fecha = models.DateField(null=True, blank=True)
+    recomendacion_casa = models.TextField()
+    producto_recomendado = models.TextField()
+    modo_uso = models.TextField()
+    frecuencia = models.TextField()
+    fecha_inicio = models.DateField(null=True, blank=True)
+    fecha_termino = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-fecha', '-id']
+
+    def __str__(self):
+        return f"Cuidados de {self.cliente.nombre_completo}"
+
+    def save(self, *args, **kwargs):
+        if not self.cliente.perfil or self.cliente.perfil.rol != 'usuario':
+            raise ValidationError("Solo los clientes pueden tener cuidados y recomendaciones")
+        super().save(*args, **kwargs)
+
 class TipoProducto(models.Model):
     nombre = models.CharField(max_length=50)
 
