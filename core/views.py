@@ -78,7 +78,6 @@ def registro(request):
     })
 
 
-@login_required(login_url='/login/')
 def agendar_view(request):
     perfil_usuario = getattr(request.user, 'perfil', None)
     desde_panel_profesional = (
@@ -90,12 +89,17 @@ def agendar_view(request):
     )
 
     # Obtener citas del usuario actual
-    mis_citas = Cita.objects.none() if desde_panel_profesional else Cita.objects.filter(
+    mis_citas = Cita.objects.none() if (desde_panel_profesional or not request.user.is_authenticated) else Cita.objects.filter(
         cliente=request.user
     ).order_by('fecha', 'hora')
     servicios = Servicio.objects.filter(activo=True)
     
     if request.method == 'POST':
+        # Si no está autenticado, redirigir a registro/login
+        if not request.user.is_authenticated:
+            messages.info(request, 'Debes iniciar sesión o registrarte para agendar una cita.')
+            return redirect('registro')
+        
         servicio = request.POST.get('servicio', '').strip()
         fecha_str = request.POST.get('fecha', '').strip()
         hora_str = request.POST.get('hora', '').strip()
