@@ -1,0 +1,201 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi agenda | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/mi_agenda_profesional.css' %}?v=1">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <a href="{% url 'panel_profesional' %}" class="header-link">Volver al panel</a>
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Mi agenda</h2>
+                    <p class="sidebar-user">{{ nombre_profesional }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}">Clientes</a></li>
+                        <li><a href="{% url 'gestionar_servicios' %}">Servicios</a></li>
+                        <li><a href="{% url 'mi_agenda_profesional' %}" class="menu-active">Mi agenda</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="panel-content">
+                <section class="section-card agenda-tools">
+                    <div class="section-header">
+                        <div>
+                            <h2>Agregar cita</h2>
+                            <p>Registra una nueva atencion en tu calendario mensual.</p>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'crear_cita_agenda' %}" class="agenda-form">
+                        {% csrf_token %}
+                        <label>
+                            <span>Cliente</span>
+                            <select name="cliente_id" required>
+                                <option value="">Selecciona cliente</option>
+                                {% for cliente in clientes %}
+                                    <option value="{{ cliente.id }}">{{ cliente.nombre_completo }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Servicio</span>
+                            <select name="servicio" required>
+                                <option value="">Selecciona servicio</option>
+                                {% for servicio in servicios %}
+                                    <option value="{{ servicio.codigo }}">{{ servicio.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Fecha</span>
+                            <input type="date" name="fecha" required>
+                        </label>
+                        <label>
+                            <span>Hora</span>
+                            <select name="hora" required>
+                                <option value="">Hora</option>
+                                {% for hora in horas %}
+                                    <option value="{{ hora }}">{{ hora }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Estado</span>
+                            <select name="estado">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="realizada">Realizada</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </label>
+                        <button type="submit" class="action-btn">Agregar cita</button>
+                    </form>
+                </section>
+
+                <section class="section-card monthly-agenda">
+                    <div class="agenda-month-header">
+                        <a class="secondary-btn" href="{% url 'mi_agenda_profesional' %}?mes={{ mes_anterior|date:'Y-m' }}">Mes anterior</a>
+                        <div>
+                            <h2>{{ mes_nombre }} {{ mes_actual|date:"Y" }}</h2>
+                            <p>Calendario mensual de tus citas.</p>
+                        </div>
+                        <a class="secondary-btn" href="{% url 'mi_agenda_profesional' %}?mes={{ mes_siguiente|date:'Y-m' }}">Mes siguiente</a>
+                    </div>
+
+                    <div class="month-weekdays">
+                        {% for dia in dias_semana %}
+                            <span>{{ dia }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="month-grid">
+                        {% for semana in semanas %}
+                            {% for dia in semana %}
+                                <section class="month-day {% if not dia.en_mes %}is-muted{% endif %} {% if dia.es_hoy %}is-today{% endif %}">
+                                    <header>
+                                        <time datetime="{{ dia.fecha|date:'Y-m-d' }}">{{ dia.fecha|date:"d" }}</time>
+                                    </header>
+
+                                    <div class="day-events">
+                                        {% for cita in dia.citas %}
+                                            <article class="agenda-event agenda-event-{{ cita.estado }}">
+                                                <div class="event-summary">
+                                                    <time>{{ cita.hora|time:"H:i" }}</time>
+                                                    <strong>{{ cita.cliente.nombre_completo }}</strong>
+                                                    <span>{{ cita.servicio }}</span>
+                                                </div>
+                                                <details class="event-editor">
+                                                    <summary>Modificar</summary>
+                                                    <form method="post" action="{% url 'editar_cita_agenda' cita.id %}" class="event-form">
+                                                        {% csrf_token %}
+                                                        <label>
+                                                            <span>Cliente</span>
+                                                            <select name="cliente_id" required>
+                                                                {% for cliente in clientes %}
+                                                                    <option value="{{ cliente.id }}" {% if cliente.id == cita.cliente.id %}selected{% endif %}>{{ cliente.nombre_completo }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </label>
+                                                        <label>
+                                                            <span>Servicio</span>
+                                                            <select name="servicio" required>
+                                                                {% for servicio in servicios %}
+                                                                    <option value="{{ servicio.codigo }}" {% if servicio.nombre == cita.servicio %}selected{% endif %}>{{ servicio.nombre }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </label>
+                                                        <label>
+                                                            <span>Fecha</span>
+                                                            <input type="date" name="fecha" value="{{ cita.fecha|date:'Y-m-d' }}" required>
+                                                        </label>
+                                                        <label>
+                                                            <span>Hora</span>
+                                                            <select name="hora" required>
+                                                                {% for hora in horas %}
+                                                                    <option value="{{ hora }}" {% if cita.hora|time:'H:i' == hora %}selected{% endif %}>{{ hora }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </label>
+                                                        <label>
+                                                            <span>Estado</span>
+                                                            <select name="estado">
+                                                                <option value="pendiente" {% if cita.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                                                <option value="realizada" {% if cita.estado == 'realizada' %}selected{% endif %}>Realizada</option>
+                                                                <option value="cancelada" {% if cita.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                                                            </select>
+                                                        </label>
+                                                        <button type="submit" class="secondary-btn">Guardar cambios</button>
+                                                    </form>
+                                                    <form method="post" action="{% url 'eliminar_cita_agenda' cita.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="danger-btn" onclick="return confirm('Deseas eliminar esta cita?');">Eliminar cita</button>
+                                                    </form>
+                                                </details>
+                                            </article>
+                                        {% empty %}
+                                            <p class="day-empty">Sin citas</p>
+                                        {% endfor %}
+                                    </div>
+                                </section>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

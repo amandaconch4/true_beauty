@@ -44,7 +44,7 @@
                         <li><a href="#citas">Citas</a></li>
                         <li><a href="{% url 'vista_cliente_profesi' %}">Clientes</a></li>
                         <li><a href="{% url 'gestionar_servicios' %}">Servicios</a></li>
-                        <li><a href="{% url 'agendar_hora' %}?desde=panel_profesional">Agenda tu hora</a></li>
+                        <li><a href="{% url 'mi_agenda_profesional' %}">Mi agenda</a></li>
                     </ul>
                 </nav>
             </aside>
@@ -70,9 +70,9 @@
                                 <span class="action-icon">+</span>
                                 Agregar nuevo cliente
                             </a>
-                            <a href="{% url 'agendar_hora' %}?desde=panel_profesional" class="action-btn action-btn-light">
+                            <a href="{% url 'mi_agenda_profesional' %}" class="action-btn action-btn-light">
                                 <span class="action-icon">+</span>
-                                Agregar nueva cita
+                                Ver mi agenda
                             </a>
                         </div>
                     </aside>

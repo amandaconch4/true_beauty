@@ -1,5 +1,6 @@
 import re
-from datetime import date, timedelta
+import calendar
+from datetime import date, datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -648,6 +649,189 @@ def eliminar_servicio(request, id):
     servicio.delete()
     messages.success(request, 'Servicio eliminado correctamente.')
     return redirect('gestionar_servicios')
+
+
+def _mes_agenda(request):
+    mes_param = request.GET.get('mes', '')
+    hoy = date.today()
+    if mes_param:
+        try:
+            return datetime.strptime(mes_param, '%Y-%m').date().replace(day=1)
+        except ValueError:
+            return hoy.replace(day=1)
+    return hoy.replace(day=1)
+
+
+def _redirect_agenda_mes(fecha):
+    return redirect(f"{'/panel-profesional/mi-agenda/'}?mes={fecha.strftime('%Y-%m')}")
+
+
+@login_required
+def mi_agenda_profesional(request):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para ver esta agenda.')
+        return redirect('profesional')
+
+    mes_actual = _mes_agenda(request)
+    _, ultimo_dia = calendar.monthrange(mes_actual.year, mes_actual.month)
+    inicio_mes = mes_actual
+    fin_mes = mes_actual.replace(day=ultimo_dia)
+    mes_anterior = (inicio_mes - timedelta(days=1)).replace(day=1)
+    mes_siguiente = (fin_mes + timedelta(days=1)).replace(day=1)
+
+    citas_mes = Cita.objects.select_related('cliente').filter(
+        profesional=request.user,
+        fecha__range=(inicio_mes, fin_mes),
+    ).order_by('fecha', 'hora')
+
+    citas_por_fecha = {}
+    for cita in citas_mes:
+        citas_por_fecha.setdefault(cita.fecha, []).append(cita)
+
+    calendario = calendar.Calendar(firstweekday=0)
+    semanas = []
+    for semana in calendario.monthdatescalendar(mes_actual.year, mes_actual.month):
+        semanas.append([
+            {
+                'fecha': dia,
+                'en_mes': dia.month == mes_actual.month,
+                'es_hoy': dia == date.today(),
+                'citas': citas_por_fecha.get(dia, []),
+            }
+            for dia in semana
+        ])
+
+    nombres_meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ]
+
+    return render(request, 'mi_agenda_profesional.html', {
+        'nombre_profesional': request.user.nombre_completo,
+        'semanas': semanas,
+        'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
+        'servicios': Servicio.objects.filter(activo=True),
+        'horas': [
+            '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+            '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+            '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+        ],
+        'mes_actual': mes_actual,
+        'mes_nombre': nombres_meses[mes_actual.month - 1],
+        'mes_anterior': mes_anterior,
+        'mes_siguiente': mes_siguiente,
+        'dias_semana': ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+    })
+
+
+def _datos_cita_desde_request(request):
+    cliente_id = request.POST.get('cliente_id', '').strip()
+    servicio_codigo = request.POST.get('servicio', '').strip()
+    fecha_str = request.POST.get('fecha', '').strip()
+    hora_str = request.POST.get('hora', '').strip()
+    estado = request.POST.get('estado', 'pendiente').strip()
+
+    cliente = Usuario.objects.filter(id=cliente_id, perfil__rol='usuario').first()
+    servicio = Servicio.objects.filter(codigo=servicio_codigo, activo=True).first()
+    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+    hora = datetime.strptime(hora_str, '%H:%M').time()
+
+    if estado not in ['pendiente', 'realizada', 'cancelada']:
+        estado = 'pendiente'
+
+    return cliente, servicio, fecha, hora, estado
+
+
+@login_required
+@require_POST
+def crear_cita_agenda(request):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar esta agenda.')
+        return redirect('profesional')
+
+    try:
+        cliente, servicio, fecha, hora, estado = _datos_cita_desde_request(request)
+    except (ValueError, TypeError):
+        messages.error(request, 'Revisa la fecha y hora de la cita.')
+        return redirect('mi_agenda_profesional')
+
+    if not cliente or not servicio:
+        messages.error(request, 'Debes seleccionar cliente y servicio.')
+        return _redirect_agenda_mes(fecha)
+
+    existe = Cita.objects.filter(
+        profesional=request.user,
+        fecha=fecha,
+        hora=hora,
+        estado__in=['pendiente', 'realizada'],
+    ).exists()
+    if existe:
+        messages.error(request, 'Ya tienes una cita registrada en ese horario.')
+        return _redirect_agenda_mes(fecha)
+
+    Cita.objects.create(
+        cliente=cliente,
+        profesional=request.user,
+        servicio=servicio.nombre,
+        fecha=fecha,
+        hora=hora,
+        estado=estado,
+    )
+    messages.success(request, 'Cita agregada correctamente.')
+    return _redirect_agenda_mes(fecha)
+
+
+@login_required
+@require_POST
+def editar_cita_agenda(request, id):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar esta agenda.')
+        return redirect('profesional')
+
+    cita = get_object_or_404(Cita, id=id, profesional=request.user)
+
+    try:
+        cliente, servicio, fecha, hora, estado = _datos_cita_desde_request(request)
+    except (ValueError, TypeError):
+        messages.error(request, 'Revisa la fecha y hora de la cita.')
+        return _redirect_agenda_mes(cita.fecha)
+
+    if not cliente or not servicio:
+        messages.error(request, 'Debes seleccionar cliente y servicio.')
+        return _redirect_agenda_mes(cita.fecha)
+
+    existe = Cita.objects.filter(
+        profesional=request.user,
+        fecha=fecha,
+        hora=hora,
+        estado__in=['pendiente', 'realizada'],
+    ).exclude(id=cita.id).exists()
+    if existe:
+        messages.error(request, 'Ya tienes otra cita registrada en ese horario.')
+        return _redirect_agenda_mes(fecha)
+
+    cita.cliente = cliente
+    cita.servicio = servicio.nombre
+    cita.fecha = fecha
+    cita.hora = hora
+    cita.estado = estado
+    cita.save()
+    messages.success(request, 'Cita actualizada correctamente.')
+    return _redirect_agenda_mes(fecha)
+
+
+@login_required
+@require_POST
+def eliminar_cita_agenda(request, id):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar esta agenda.')
+        return redirect('profesional')
+
+    cita = get_object_or_404(Cita, id=id, profesional=request.user)
+    fecha = cita.fecha
+    cita.delete()
+    messages.success(request, 'Cita eliminada correctamente.')
+    return _redirect_agenda_mes(fecha)
 
 @login_required
 def vista_cliente_profesi(request):

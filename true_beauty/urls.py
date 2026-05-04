@@ -39,6 +39,10 @@ from core.views import (
     crear_servicio,
     editar_servicio,
     eliminar_servicio,
+    mi_agenda_profesional,
+    crear_cita_agenda,
+    editar_cita_agenda,
+    eliminar_cita_agenda,
     eliminar_cuenta,
     cancelar_cita,
     mis_citas,
@@ -70,6 +74,10 @@ urlpatterns = [
     path('panel-profesional/servicios/crear/', crear_servicio, name='crear_servicio'),
     path('panel-profesional/servicios/<int:id>/editar/', editar_servicio, name='editar_servicio'),
     path('panel-profesional/servicios/<int:id>/eliminar/', eliminar_servicio, name='eliminar_servicio'),
+    path('panel-profesional/mi-agenda/', mi_agenda_profesional, name='mi_agenda_profesional'),
+    path('panel-profesional/mi-agenda/citas/crear/', crear_cita_agenda, name='crear_cita_agenda'),
+    path('panel-profesional/mi-agenda/citas/<int:id>/editar/', editar_cita_agenda, name='editar_cita_agenda'),
+    path('panel-profesional/mi-agenda/citas/<int:id>/eliminar/', eliminar_cita_agenda, name='eliminar_cita_agenda'),
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
      path(
