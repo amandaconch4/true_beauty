@@ -1,6 +1,5 @@
 import re
-from datetime import date, datetime
-from types import SimpleNamespace
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -86,141 +85,182 @@ def agendar_view(request):
         and perfil_usuario
         and perfil_usuario.rol == 'profesional'
     )
-    clientes = Usuario.objects.filter(perfil__rol='usuario').order_by('nombre_completo') if desde_panel_profesional else Usuario.objects.none()
-    profesionales = Usuario.objects.filter(perfil__rol='profesional').order_by('nombre_completo')
-    cliente_seleccionado_id = ''
-    profesional_seleccionado_id = ''
-    mis_citas = Cita.objects.filter(
+
+    # Obtener citas del usuario actual
+    mis_citas = Cita.objects.none() if desde_panel_profesional else Cita.objects.filter(
         cliente=request.user
     ).order_by('fecha', 'hora')
-
+    
     if request.method == 'POST':
-        cliente_seleccionado_id = request.POST.get('cliente_id', '').strip()
-        profesional_seleccionado_id = request.POST.get('profesional_id', '').strip()
         servicio = request.POST.get('servicio', '').strip()
         fecha_str = request.POST.get('fecha', '').strip()
         hora_str = request.POST.get('hora', '').strip()
-
+        cliente_id = request.POST.get('cliente_id', '').strip()
+        profesional_id = request.POST.get('profesional_id', '').strip()
+        
+        # Validaciones
         errores = []
-        cliente_cita = request.user
-        profesional_elegido = None
+        cliente_asignado = request.user
+        profesional_asignado = None
 
         if desde_panel_profesional:
-            if not cliente_seleccionado_id:
+            if not cliente_id:
                 errores.append('Debes seleccionar un cliente.')
             else:
-                cliente_cita = clientes.filter(id=cliente_seleccionado_id).first()
-                if cliente_cita is None:
-                    errores.append('El cliente seleccionado no es valido.')
+                cliente_asignado = Usuario.objects.filter(id=cliente_id, perfil__rol='usuario').first()
+                if cliente_asignado is None:
+                    errores.append('El cliente seleccionado no existe.')
 
-            if not profesional_seleccionado_id:
+            if not profesional_id:
                 errores.append('Debes seleccionar un profesional.')
             else:
-                profesional_elegido = profesionales.filter(id=profesional_seleccionado_id).first()
-                if profesional_elegido is None:
-                    errores.append('El profesional seleccionado no es valido.')
-
+                profesional_asignado = Usuario.objects.filter(id=profesional_id, perfil__rol='profesional').first()
+                if profesional_asignado is None:
+                    errores.append('El profesional seleccionado no existe.')
+        
         if not servicio:
             errores.append('Debes seleccionar un servicio.')
+        
         if not fecha_str:
             errores.append('Debes seleccionar una fecha.')
+        
         if not hora_str:
             errores.append('Debes seleccionar una hora.')
-
+        
         if errores:
             for error in errores:
                 messages.error(request, error)
             return render(request, "agendar_hora.html", {
-                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
-                'clientes': clientes,
-                'profesionales': profesionales,
-                'cliente_seleccionado_id': cliente_seleccionado_id,
-                'profesional_seleccionado_id': profesional_seleccionado_id,
+                'desde_panel_profesional': desde_panel_profesional,
+                'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
+                'profesionales': Usuario.objects.filter(perfil__rol='profesional', is_active=True).order_by('nombre_completo'),
+                'cliente_seleccionado_id': cliente_id,
+                'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
-
-        from datetime import datetime
-
+        
+        # Buscar un profesional disponible (que no tenga cita a esa hora)
+        from datetime import datetime, time
+        
         fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
         hora = datetime.strptime(hora_str, '%H:%M').time()
-
+        
+        # Obtener profesionales
+        profesionales = Usuario.objects.filter(
+            perfil__rol='profesional'
+        )
+        
+        # Verificar si hay profesionales en el sistema
         if not profesionales.exists():
             messages.error(request, 'No hay profesionales configurados en el sistema. Contacta al administrador.')
             return render(request, "agendar_hora.html", {
-                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
-                'clientes': clientes,
+                'desde_panel_profesional': desde_panel_profesional,
+                'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
                 'profesionales': profesionales,
-                'cliente_seleccionado_id': cliente_seleccionado_id,
-                'profesional_seleccionado_id': profesional_seleccionado_id,
+                'cliente_seleccionado_id': cliente_id,
+                'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
+        
+        if desde_panel_profesional:
+            cita_existente = Cita.objects.filter(
+                profesional=profesional_asignado,
+                fecha=fecha,
+                hora=hora,
+                estado__in=['pendiente', 'realizada']
+            ).first()
 
-        profesional_asignado = None
-        profesionales_disponibles = [profesional_elegido] if profesional_elegido else profesionales
-        for profesional in profesionales_disponibles:
-            if profesional:
+            if cita_existente:
+                profesional_asignado = None
+        else:
+            profesional_asignado = None
+            for profesional in profesionales:
+                # Verificar si el profesional ya tiene una cita a esa hora
                 cita_existente = Cita.objects.filter(
                     profesional=profesional,
                     fecha=fecha,
                     hora=hora,
                     estado__in=['pendiente', 'realizada']
                 ).first()
+                
                 if not cita_existente:
                     profesional_asignado = profesional
                     break
-
+        
         if not profesional_asignado:
-            if profesional_elegido:
-                messages.error(request, f'{profesional_elegido.nombre_completo} no esta disponible el {fecha_str} a las {hora_str}. Por favor, selecciona otra fecha u hora.')
+            if desde_panel_profesional:
+                messages.error(request, f'El profesional seleccionado no esta disponible el {fecha_str} a las {hora_str}.')
             else:
                 messages.error(request, f'No hay profesionales disponibles el {fecha_str} a las {hora_str}. Todos los profesionales tienen citas agendadas en ese horario. Por favor, selecciona otra fecha u hora.')
             return render(request, "agendar_hora.html", {
-                'desde_panel_profesional': desde_panel_profesional,
                 'mis_citas': mis_citas,
-                'clientes': clientes,
+                'desde_panel_profesional': desde_panel_profesional,
+                'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
                 'profesionales': profesionales,
-                'cliente_seleccionado_id': cliente_seleccionado_id,
-                'profesional_seleccionado_id': profesional_seleccionado_id,
+                'cliente_seleccionado_id': cliente_id,
+                'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
                 'fecha_seleccionada': fecha_str,
                 'hora_seleccionada': hora_str,
             })
-
+        
+        # Crear la cita
         nombres_servicios = {
             'corte': 'Corte de pelo',
             'alisado': 'Alisado',
             'botox': 'Botox capilar',
             'peinado': 'Peinado',
             'keratina': 'Tratamiento de keratina',
-            'coloracion': 'Coloracion',
+            'coloracion': 'Coloración',
         }
-        Cita.objects.create(
-            cliente=cliente_cita,
+        
+        cita = Cita.objects.create(
+            cliente=cliente_asignado,
             profesional=profesional_asignado,
             servicio=nombres_servicios.get(servicio, servicio),
             fecha=fecha,
             hora=hora,
             estado='pendiente'
         )
-        messages.success(request, f'Cita agendada exitosamente. Te esperamos el {fecha_str} a las {hora_str}.')
+        
+        messages.success(request, f'¡Cita agendada exitosamente! Te esperamos el {fecha_str} a las {hora_str}.')
+        
+        # Actualizar la lista de citas
         mis_citas = Cita.objects.filter(
-            cliente=cliente_cita if desde_panel_profesional else request.user
+            cliente=request.user
         ).order_by('fecha', 'hora')
+    
+    perfil_usuario = getattr(request.user, 'perfil', None)
+    desde_panel_profesional = (
+        request.GET.get('desde') == 'panel_profesional'
+        and request.user.is_authenticated
+        and request.user.is_staff
+        and perfil_usuario
+        and perfil_usuario.rol == 'profesional'
+    )
+    profesionales = Usuario.objects.filter(
+        perfil__rol='profesional',
+        is_active=True,
+    ).order_by('nombre_completo')
+    clientes = Usuario.objects.filter(
+        perfil__rol='usuario',
+        is_active=True,
+    ).order_by('nombre_completo')
 
     return render(request, "agendar_hora.html", {
-        'desde_panel_profesional': desde_panel_profesional,
         'mis_citas': mis_citas,
-        'clientes': clientes,
+        'desde_panel_profesional': desde_panel_profesional,
         'profesionales': profesionales,
-        'cliente_seleccionado_id': cliente_seleccionado_id,
-        'profesional_seleccionado_id': profesional_seleccionado_id,
+        'clientes': clientes,
     })
+
+
 def profesional_view(request):
     next_url = request.POST.get('next') or request.GET.get('next')
 
@@ -300,6 +340,23 @@ def crear_profesional(request):
         return redirect('profesional')
 
     if request.method == 'POST':
+        usuario_form = UsuarioForm(request.POST)
+
+        if usuario_form.is_valid():
+            perfil_profesional, _ = PerfilUsuario.objects.get_or_create(rol='profesional')
+            usuario = usuario_form.save(commit=False)
+            usuario.perfil = perfil_profesional
+            usuario.is_staff = True
+            usuario.save()
+
+            messages.success(request, 'Profesional creado correctamente.')
+            return redirect('panel_admin')
+
+        for field_errors in usuario_form.errors.values():
+            for error in field_errors:
+                messages.error(request, error)
+        return redirect('panel_admin')
+
         username = request.POST.get('username', '').strip()
         nombre_completo = request.POST.get('nombre_completo', '').strip()
         email = request.POST.get('email', '').strip()
@@ -435,16 +492,38 @@ def panel_profesional(request):
         fecha=date.today()
     ).order_by('hora')
 
+    hoy = date.today()
+    inicio_semana = hoy
+    fin_semana = hoy + timedelta(days=6)
+    citas_semana = Cita.objects.select_related('cliente').filter(
+        profesional=request.user,
+        fecha__range=(inicio_semana, fin_semana)
+    ).order_by('fecha', 'hora')
+    citas_por_fecha = {}
+    for cita in citas_semana:
+        citas_por_fecha.setdefault(cita.fecha, []).append(cita)
+
+    nombres_dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
+    agenda_semana = [
+        {
+            'nombre': nombres_dias[(inicio_semana + timedelta(days=indice)).weekday()],
+            'fecha': inicio_semana + timedelta(days=indice),
+            'citas': citas_por_fecha.get(inicio_semana + timedelta(days=indice), []),
+            'es_hoy': inicio_semana + timedelta(days=indice) == hoy,
+        }
+        for indice in range(7)
+    ]
+
     clientes_db = Usuario.objects.filter(perfil__rol='usuario')
 
     clientes = []
     for cliente in clientes_db:
-        ultimo_tratamiento = cliente.cuidados_recomendaciones.first()
+        ultimo_tratamiento = Tratamiento.objects.filter(usuario=cliente).order_by('-fecha').first()
 
         clientes.append({
             'id': cliente.id,
             'nombre_completo': cliente.nombre_completo,
-            'ultimo_tratamiento': ultimo_tratamiento.producto_recomendado if ultimo_tratamiento else 'Sin tratamientos',
+            'ultimo_tratamiento': ultimo_tratamiento.nombre if ultimo_tratamiento else 'Sin tratamientos',
             'fecha': ultimo_tratamiento.fecha if ultimo_tratamiento else '',
         })
     
@@ -454,6 +533,10 @@ def panel_profesional(request):
         'nombre_profesional':request.user.nombre_completo,
         'clientes': clientes,
         'citas_hoy': citas_hoy,
+        'agenda_semana': agenda_semana,
+        'hay_citas_semana': citas_semana.exists(),
+        'inicio_semana': inicio_semana,
+        'fin_semana': fin_semana,
     })
 
 @login_required
@@ -507,62 +590,6 @@ def ficha_capilar(request, id):
             'nota': request.POST.get('historial_nota_1', '').strip(),
             'fecha_1': request.POST.get('fecha_historial_1', ''),
         }
-
-        campos_requeridos = {
-            'marca_shampoo': 'marca de shampoo',
-            'observaciones': 'problema identificado',
-            'color_original': 'color original del cabello',
-            'historial_nota_1': 'observacion del historial',
-            'fecha_historial_1': 'fecha del historial',
-            'estado_cabello': 'procedimiento a realizar',
-            'tratamientos_previos': 'producto utilizado',
-            'duracion_aproximada': 'duracion aproximada',
-        }
-        grupos_requeridos = {
-            'general_1': 'procedimiento capilar en los ultimos 3 meses',
-            'general_2': 'hidratacion o reconstruccion frecuente',
-            'general_3': 'uso frecuente de plancha, ondulador o secador',
-            'general_4': 'alergias',
-            'general_5': 'problema hormonal',
-            'tipo_cabello': 'tipo de cabello',
-            'grosor': 'grosor',
-            'elasticidad': 'elasticidad',
-            'porosidad': 'porosidad',
-            'cuero_cabelludo': 'cuero cabelludo',
-            'textura': 'textura',
-        }
-        faltantes = [
-            etiqueta
-            for campo, etiqueta in campos_requeridos.items()
-            if not request.POST.get(campo, '').strip()
-        ]
-        faltantes.extend(
-            etiqueta
-            for grupo, etiqueta in grupos_requeridos.items()
-            if not request.POST.get(grupo, '').strip()
-        )
-
-        if faltantes:
-            messages.error(request, 'Debes completar todos los campos antes de guardar la ficha.')
-            ficha_form = SimpleNamespace(
-                tipo_cabello=request.POST.get('tipo_cabello', '').strip(),
-                estado_cabello=request.POST.get('estado_cabello', '').strip(),
-                tratamientos_previos=request.POST.get('tratamientos_previos', '').strip(),
-                observaciones=request.POST.get('observaciones', '').strip(),
-                grosor=request.POST.get('grosor', '').strip(),
-                elasticidad=request.POST.get('elasticidad', '').strip(),
-                porosidad=request.POST.get('porosidad', '').strip(),
-                cuero_cabelludo=request.POST.get('cuero_cabelludo', '').strip(),
-                textura=request.POST.get('textura', '').strip(),
-                marca_shampoo=request.POST.get('marca_shampoo', '').strip()[:50],
-                duracion_aproximada=request.POST.get('duracion_aproximada', '').strip(),
-            )
-            return render(request, 'ficha_capilar.html', {
-                'cliente': cliente,
-                'ficha': ficha_form,
-                'diagnostico_general': diagnostico_general,
-                'historial': historial,
-            })
 
         ficha, _ = FichaCapilar.objects.get_or_create(
             usuario=cliente,
@@ -644,102 +671,52 @@ def reservas_cliente(request, id):
 
 def cuidados_cliente(request, id):
     cliente = get_object_or_404(Usuario, id=id)
-    cuidados_lista = cliente.cuidados_recomendaciones.all()
+    cuidados_lista = CuidadoRecomendacion.objects.filter(cliente=cliente)
+
+    if request.method == 'POST':
+        cuidado_id = request.POST.get('cuidado_id')
+
+        if cuidado_id:
+            cuidado = get_object_or_404(CuidadoRecomendacion, id=cuidado_id, cliente=cliente)
+        else:
+            cuidado = CuidadoRecomendacion(cliente=cliente)
+
+        cuidado.fecha = request.POST.get('fecha') or None
+        cuidado.recomendacion_casa = request.POST.get('recomendacion_casa', '').strip()
+        cuidado.producto_recomendado = request.POST.get('producto_recomendado', '').strip()
+        cuidado.modo_uso = request.POST.get('modo_uso', '').strip()
+        cuidado.frecuencia = request.POST.get('frecuencia', '').strip()
+        cuidado.fecha_inicio = request.POST.get('fecha_inicio') or None
+        cuidado.fecha_termino = request.POST.get('fecha_termino') or None
+        cuidado.save()
+
+        messages.success(request, 'Cuidados y recomendaciones guardados correctamente.')
+        return redirect('cuidados_cliente', id=cliente.id)
+
     cuidado_id = request.GET.get('cuidado_id')
-    cuidado_actual = None
+    cuidado = None
 
     if cuidado_id:
-        cuidado_actual = cuidados_lista.filter(id=cuidado_id).first()
-    if cuidado_actual is None:
-        cuidado_actual = cuidados_lista.first()
+        cuidado = get_object_or_404(CuidadoRecomendacion, id=cuidado_id, cliente=cliente)
+    else:
+        cuidado = cuidados_lista.first()
 
-    def cuidado_to_form(cuidado):
-        return {
-            'id': cuidado.id if cuidado else '',
-            'fecha': cuidado.fecha.isoformat() if cuidado and cuidado.fecha else '',
-            'recomendacion_casa': cuidado.recomendacion_casa if cuidado else '',
-            'producto_recomendado': cuidado.producto_recomendado if cuidado else '',
-            'modo_uso': cuidado.modo_uso if cuidado else '',
-            'frecuencia': cuidado.frecuencia if cuidado else '',
-            'fecha_inicio': cuidado.fecha_inicio.isoformat() if cuidado and cuidado.fecha_inicio else '',
-            'fecha_termino': cuidado.fecha_termino.isoformat() if cuidado and cuidado.fecha_termino else '',
-        }
+    cuidados_form = {
+        'id': cuidado.id if cuidado else '',
+        'fecha': cuidado.fecha.isoformat() if cuidado and cuidado.fecha else '',
+        'recomendacion_casa': cuidado.recomendacion_casa if cuidado else '',
+        'producto_recomendado': cuidado.producto_recomendado if cuidado else '',
+        'modo_uso': cuidado.modo_uso if cuidado else '',
+        'frecuencia': cuidado.frecuencia if cuidado else '',
+        'fecha_inicio': cuidado.fecha_inicio.isoformat() if cuidado and cuidado.fecha_inicio else '',
+        'fecha_termino': cuidado.fecha_termino.isoformat() if cuidado and cuidado.fecha_termino else '',
+    }
 
-    cuidados_form = cuidado_to_form(cuidado_actual)
-
-    base_context = {
+    return render(request, 'cuidados_recomendaciones.html', {
         'cliente': cliente,
         'cuidados_lista': cuidados_lista,
         'cuidados_form': cuidados_form,
-        'hay_tratamiento': cuidado_actual is not None,
-    }
-
-    if request.method == 'POST':
-        cuidado_post_id = request.POST.get('cuidado_id', '').strip()
-        campos_requeridos = {
-            'fecha': 'fecha',
-            'recomendacion_casa': 'recomendacion para casa',
-            'producto_recomendado': 'producto recomendado',
-            'modo_uso': 'modo de uso',
-            'frecuencia': 'frecuencia',
-            'fecha_inicio': 'fecha de inicio',
-            'fecha_termino': 'fecha de termino',
-        }
-        faltantes = [
-            etiqueta
-            for campo, etiqueta in campos_requeridos.items()
-            if not request.POST.get(campo, '').strip()
-        ]
-
-        if faltantes:
-            messages.error(request, 'Debes completar todos los campos antes de guardar los cuidados.')
-            cuidados_form = {
-                'id': cuidado_post_id,
-                'fecha': request.POST.get('fecha', ''),
-                'recomendacion_casa': request.POST.get('recomendacion_casa', '').strip(),
-                'producto_recomendado': request.POST.get('producto_recomendado', '').strip(),
-                'modo_uso': request.POST.get('modo_uso', '').strip(),
-                'frecuencia': request.POST.get('frecuencia', '').strip(),
-                'fecha_inicio': request.POST.get('fecha_inicio', ''),
-                'fecha_termino': request.POST.get('fecha_termino', ''),
-            }
-            return render(request, 'cuidados_recomendaciones.html', {
-                **base_context,
-                'cuidados_form': cuidados_form,
-                'hay_tratamiento': bool(cuidado_post_id),
-            })
-
-        datos_cuidado = {
-            'fecha': request.POST.get('fecha'),
-            'recomendacion_casa': request.POST.get('recomendacion_casa', '').strip(),
-            'producto_recomendado': request.POST.get('producto_recomendado', '').strip(),
-            'modo_uso': request.POST.get('modo_uso', '').strip(),
-            'frecuencia': request.POST.get('frecuencia', '').strip(),
-            'fecha_inicio': request.POST.get('fecha_inicio'),
-            'fecha_termino': request.POST.get('fecha_termino'),
-        }
-
-        cuidado_editado = None
-        if cuidado_post_id:
-            cuidado_editado = cuidados_lista.filter(id=cuidado_post_id).first()
-
-        if cuidado_editado:
-            for campo, valor in datos_cuidado.items():
-                setattr(cuidado_editado, campo, valor)
-            cuidado_editado.save()
-            mensaje = 'Tratamiento actualizado correctamente.'
-        else:
-            cuidado_editado = CuidadoRecomendacion.objects.create(
-                cliente=cliente,
-                **datos_cuidado
-            )
-            mensaje = 'Tratamiento agregado correctamente.'
-
-        messages.success(request, mensaje)
-        return redirect(f"{request.path}?cuidado_id={cuidado_editado.id}")
-
-    return render(request, 'cuidados_recomendaciones.html', {
-        **base_context,
+        'hay_tratamiento': cuidado is not None,
     })
 
 @login_required

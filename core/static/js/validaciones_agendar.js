@@ -1,62 +1,60 @@
-// Validar fecha y hora para agendar citas (hoy solo hasta las 17:00)
-document.addEventListener('DOMContentLoaded', function() {
+// Valida fecha y hora usando la fecha local del navegador.
+document.addEventListener('DOMContentLoaded', function () {
     const fechaInput = document.getElementById('fecha');
     const horaInput = document.getElementById('hora');
+
+    if (!fechaInput || !horaInput) return;
+
     const hoy = new Date();
     const horaActual = hoy.getHours();
     const minutosActuales = hoy.getMinutes();
-    const fechaHoyStr = hoy.toISOString().split('T')[0];
 
-    // Función para validar y actualizar horas disponibles
+    function fechaLocalISO(fecha) {
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const fechaHoyStr = fechaLocalISO(hoy);
+
     function validarHoras() {
         const fechaSeleccionada = fechaInput.value;
         const esHoy = fechaSeleccionada === fechaHoyStr;
 
-        if (esHoy) {
-            // Si es hoy, deshabilitar horas que ya pasaron
-            const horasDisponibles = horaInput.querySelectorAll('option');
-            horasDisponibles.forEach(option => {
-                if (option.value === '') return; // Skip placeholder
+        horaInput.querySelectorAll('option').forEach(function (option) {
+            if (option.value === '') return;
 
-                const [hora, minutos] = option.value.split(':').map(Number);
-                const esPasada = hora < horaActual || (hora === horaActual && minutos < minutosActuales);
-
-                if (esPasada) {
-                    option.disabled = true;
-                    option.style.color = '#ccc';
-                } else {
-                    option.disabled = false;
-                    option.style.color = '';
-                }
-            });
-        } else {
-            // Si es una fecha futura, habilitar todas las horas
-            const horasDisponibles = horaInput.querySelectorAll('option');
-            horasDisponibles.forEach(option => {
+            if (!esHoy) {
                 option.disabled = false;
                 option.style.color = '';
-            });
-        }
+                return;
+            }
+
+            const partesHora = option.value.split(':').map(Number);
+            const hora = partesHora[0];
+            const minutos = partesHora[1];
+            const esPasada = hora < horaActual || (hora === horaActual && minutos < minutosActuales);
+
+            option.disabled = esPasada;
+            option.style.color = esPasada ? '#ccc' : '';
+        });
     }
 
-    // Si son las 17:00 o después, deshabilitar fecha de hoy
+    let fechaMinima = fechaHoyStr;
+
     if (horaActual >= 17) {
-        // Establecer la fecha mínima a mañana
-        const mañana = new Date();
-        mañana.setDate(mañana.getDate() + 1);
-        const fechaMañana = mañana.toISOString().split('T')[0];
-        fechaInput.min = fechaMañana;
-        fechaInput.value = fechaMañana; // Preseleccionar mañana
-    } else {
-        // Si es antes de las 17:00, se puede elegir hoy
-        fechaInput.min = fechaHoyStr;
-        fechaInput.value = fechaHoyStr; // Preseleccionar hoy (permitido antes de las 17:00)
+        const manana = new Date();
+        manana.setDate(manana.getDate() + 1);
+        fechaMinima = fechaLocalISO(manana);
     }
 
-    // Validar horas al cargar la página
-    validarHoras();
+    fechaInput.min = fechaMinima;
 
-    // Validar horas cuando cambie la fecha
+    if (!fechaInput.value || fechaInput.value < fechaMinima) {
+        fechaInput.value = fechaMinima;
+    }
+
+    validarHoras();
     fechaInput.addEventListener('change', validarHoras);
 });
-

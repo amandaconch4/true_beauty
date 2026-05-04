@@ -219,6 +219,55 @@ body {
     color: #c26a8d;
 }
 
+.error-message {
+    color: #c0392b;
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.password-requisitos,
+.email-requisitos {
+    margin-top: 8px;
+}
+
+.password-requisitos ul,
+.email-requisitos ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.password-requisitos li,
+.email-requisitos li {
+    color: #a12d2d;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    padding-left: 1.15rem;
+    position: relative;
+}
+
+.password-requisitos li::before,
+.email-requisitos li::before {
+    content: "x";
+    left: 0;
+    position: absolute;
+}
+
+.password-requisitos li.valido,
+.email-requisitos li.valido,
+.password-requisitos li.valid,
+.email-requisitos li.valid {
+    color: #217a42;
+}
+
+.password-requisitos li.valido::before,
+.email-requisitos li.valido::before,
+.password-requisitos li.valid::before,
+.email-requisitos li.valid::before {
+    content: "✓";
+}
+
 /* ====== BOTONES FORM ====== */
 .button-container {
     display: flex;

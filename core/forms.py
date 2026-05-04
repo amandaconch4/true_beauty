@@ -87,8 +87,8 @@ class UsuarioForm(UserCreationForm):
             return None
         if not password1:
             raise forms.ValidationError("La contrasena no puede estar vacia.")
-        if len(password1) < 6 or len(password1) > 18:
-            raise forms.ValidationError("La contrasena debe tener entre 6 y 18 caracteres.")
+        if len(password1) < 8 or len(password1) > 18:
+            raise forms.ValidationError("La contrasena debe tener entre 8 y 18 caracteres.")
         if not any(char.isupper() for char in password1):
             raise forms.ValidationError("La contrasena debe contener al menos una mayuscula.")
         if not any(char.isdigit() for char in password1):

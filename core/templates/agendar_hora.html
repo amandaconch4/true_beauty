@@ -17,7 +17,7 @@
             <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
             <div class="top-header__actions">
                 {% if desde_panel_profesional %}
-                    <a class="header-link" href="{% url 'panel_profesional' %}">Volver</a>
+                    <a class="login-link" href="{% url 'panel_profesional' %}">Volver a panel profesional</a>
                 {% elif user.is_authenticated %}
                     <a class="login-link" href="{% url 'perfil' %}">Mi Perfil</a>
                     <form method="post" action="{% url 'logout' %}" class="header-logout-form">
@@ -139,6 +139,6 @@
         </div>
     </div>
 
-    <script src="{% static 'js/validaciones_agendar.js' %}"></script>
+    <script src="{% static 'js/validaciones_agendar.js' %}?v=2"></script>
 </body>
 </html>

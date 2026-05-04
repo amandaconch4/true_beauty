@@ -6,13 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Profesional | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=11">
 </head>
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
         <div class="header-actions">
-            <a href="{% url 'index' %}" class="header-link">Volver</a>
             <form method="post" action="{% url 'logout_profesional' %}">
                 {% csrf_token %}
                 <button type="submit" class="header-link">Cerrar sesion</button>
@@ -153,42 +152,41 @@
                     <article class="agenda-table-section">
                         <div class="section-header">
                             <div>
-                                <h2>Resumen de agenda</h2>
-                                <p>Vista general de tus citas programadas para hoy.</p>
+                                <h2>Planificacion semanal</h2>
+                                <p>Citas del {{ inicio_semana|date:"d/m/Y" }} al {{ fin_semana|date:"d/m/Y" }}.</p>
                             </div>
                         </div>
 
-                        {% if citas_hoy %}
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Cliente</th>
-                                            <th>Fecha</th>
-                                            <th>Hora</th>
-                                            <th>Servicio</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for cita in citas_hoy|slice:":6" %}
-                                            <tr>
-                                                <td>{{ cita.cliente.nombre_completo }}</td>
-                                                <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                                                <td>{{ cita.hora|time:"H:i" }}</td>
-                                                <td>{{ cita.servicio }}</td>
-                                                <td>
-                                                    <span class="badge badge-warning">{{ cita.get_estado_display }}</span>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <div class="empty-state">
-                                <h3>No hay citas registradas para hoy</h3>
-                                <p>Cuando existan atenciones agendadas, apareceran aqui automaticamente.</p>
+                        <div class="weekly-calendar" aria-label="Planificacion de citas de la semana">
+                            {% for dia in agenda_semana %}
+                                <section class="calendar-day {% if dia.es_hoy %}calendar-day-today{% endif %}">
+                                    <header class="calendar-day-header">
+                                        <span class="calendar-day-name">{{ dia.nombre }}</span>
+                                        <span class="calendar-day-date">{{ dia.fecha|date:"d/m" }}</span>
+                                    </header>
+
+                                    <div class="calendar-day-body">
+                                        {% if dia.citas %}
+                                            {% for cita in dia.citas %}
+                                                <article class="calendar-event calendar-event-{{ cita.estado }}">
+                                                    <time>{{ cita.hora|time:"H:i" }}</time>
+                                                    <strong>{{ cita.cliente.nombre_completo }}</strong>
+                                                    <span>{{ cita.servicio }}</span>
+                                                    <small>{{ cita.get_estado_display }}</small>
+                                                </article>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="calendar-empty">Sin citas</p>
+                                        {% endif %}
+                                    </div>
+                                </section>
+                            {% endfor %}
+                        </div>
+
+                        {% if not hay_citas_semana %}
+                            <div class="weekly-empty-note">
+                                <h3>No hay citas planificadas esta semana</h3>
+                                <p>Cuando agregues nuevas atenciones, apareceran distribuidas por dia.</p>
                             </div>
                         {% endif %}
                     </article>
@@ -223,7 +221,7 @@
                                         <tr>
                                             <td>{{ cliente.nombre_completo }}</td>
                                             <td>{{ cliente.ultimo_tratamiento }}</td>
-                                            <td>{% if cliente.fecha %}{{ cliente.fecha|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                                            <td>{{ cliente.fecha }}</td>
                                             <td>
                                                 <a href="{% url 'historial_cliente' cliente.id %}" class="secondary-btn">Ver historial</a>
                                             </td>

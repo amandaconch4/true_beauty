@@ -39,42 +39,71 @@
         <section class="form-section">
             <h3>Registrar nuevo profesional</h3>
 
-            <form method="post" action="{% url 'crear_profesional' %}" class="admin-form">
+            <form method="post" action="{% url 'crear_profesional' %}" class="admin-form" id="registroForm" novalidate>
                 {% csrf_token %}
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="username">Nombre de usuario</label>
-                        <input type="text" id="username" name="username" required>
+                        <label for="id_username">Nombre de usuario</label>
+                        <input type="text" id="id_username" name="username" required>
+                        <span class="error-message" id="nombre_usuario-error"></span>
+                        <div class="email-requisitos" id="username-requisitos">
+                            <ul>
+                                <li id="req-username-length">Entre 5 y 18 caracteres</li>
+                                <li id="req-username-sin-espacios">No debe contener espacios</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="nombre_completo">Nombre completo</label>
-                        <input type="text" id="nombre_completo" name="nombre_completo" required>
+                        <label for="id_nombre_completo">Nombre completo</label>
+                        <input type="text" id="id_nombre_completo" name="nombre_completo" required>
+                        <span class="error-message" id="nombre_completo-error"></span>
+                        <div class="email-requisitos" id="nombre-requisitos">
+                            <ul>
+                                <li id="req-nombre-length">Al menos 8 caracteres</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Correo electrónico</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="id_email" name="email" required>
+                        <span class="error-message" id="correo-error"></span>
+                        <div class="email-requisitos" id="email-requisitos">
+                            <ul>
+                                <li id="req-email-formato">Debe tener formato usuario@dominio.com</li>
+                                <li id="req-email-sin-espacios">No debe contener espacios</li>
+                                <li id="req-email-dominio">Debe tener un dominio valido</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="celular">Celular</label>
-                        <input type="text" id="celular" name="celular">
+                        <input type="text" id="id_celular" name="celular" required>
+                        <span class="error-message" id="celular-error"></span>
+                        <div class="email-requisitos" id="celular-requisitos">
+                            <ul>
+                                <li id="req-celular-digits">9 digitos</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="direccion">Dirección</label>
-                        <input type="text" id="direccion" name="direccion">
+                        <input type="text" id="id_direccion" name="direccion">
+                        <span class="error-message" id="direccion-error"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento">
+                        <input type="date" id="id_fecha_nacimiento" name="fecha_nacimiento" required>
+                        <span class="error-message" id="fecha_nacimiento-error"></span>
                     </div>
                 </div>
 
@@ -82,21 +111,31 @@
                     <div class="form-group">
                         <label for="password1">Contraseña</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password1" name="password1" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('password1')">
-                                <i class="fas fa-eye" id="toggleIcon-password1"></i>
+                            <input type="password" id="id_password1" name="password1" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('id_password1')">
+                                <i class="fas fa-eye" id="toggleIcon-id_password1"></i>
                             </button>
+                        </div>
+                        <span class="error-message" id="password1-error"></span>
+                        <div class="password-requisitos" id="password-requirements">
+                            <ul>
+                                <li id="req-length" class="invalid">Entre 8 y 18 caracteres</li>
+                                <li id="req-uppercase" class="invalid">Una letra mayuscula</li>
+                                <li id="req-number" class="invalid">Un numero</li>
+                                <li id="req-special" class="invalid">Un caracter especial (.,!@#$%^&*)</li>
+                            </ul>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="password2">Confirmar contraseña</label>
                         <div class="password-wrapper">
-                            <input type="password" id="password2" name="password2" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('password2')">
-                                <i class="fas fa-eye" id="toggleIcon-password2"></i>
+                            <input type="password" id="id_password2" name="password2" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('id_password2')">
+                                <i class="fas fa-eye" id="toggleIcon-id_password2"></i>
                             </button>
                         </div>
+                        <span class="error-message" id="password2-error"></span>
                     </div>
                 </div>
 
@@ -157,6 +196,7 @@
         </section>
     </main>
 
+    <script src="{% static 'js/validaciones_registro.js' %}?v=2"></script>
     <script>
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
