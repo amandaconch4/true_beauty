@@ -1,0 +1,161 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar servicios | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/panel_profesional.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/gestionar_servicios.css' %}?v=1">
+</head>
+<body>
+    <header class="top-header">
+        <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+        <div class="header-actions">
+            <a href="{% url 'panel_profesional' %}" class="header-link">Volver al panel</a>
+            <form method="post" action="{% url 'logout_profesional' %}">
+                {% csrf_token %}
+                <button type="submit" class="header-link">Cerrar sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="panel-wrapper">
+        {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <p class="sidebar-label">Panel</p>
+                    <h2 class="sidebar-title">Servicios</h2>
+                    <p class="sidebar-user">{{ nombre_profesional }}</p>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Menu lateral">
+                    <ul class="menu">
+                        <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                        <li><a href="{% url 'panel_profesional' %}#citas">Citas</a></li>
+                        <li><a href="{% url 'vista_cliente_profesi' %}">Clientes</a></li>
+                        <li><a href="{% url 'gestionar_servicios' %}" class="menu-active">Servicios</a></li>
+                        <li><a href="{% url 'agendar_hora' %}?desde=panel_profesional">Agenda tu hora</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="panel-content">
+                <section class="section-card service-manager">
+                    <div class="section-header">
+                        <div>
+                            <h2>Gestion de servicios</h2>
+                            <p>Estos son los servicios que los clientes ven y pueden seleccionar al agendar.</p>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'crear_servicio' %}" class="service-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="service-form-grid">
+                            <label>
+                                <span>Nombre</span>
+                                <input type="text" name="nombre" placeholder="Ej: Hidratacion profunda" required>
+                            </label>
+                            <label>
+                                <span>Imagen desde PC</span>
+                                <input type="file" name="imagen_archivo" accept="image/*">
+                            </label>
+                            <label>
+                                <span>Orden</span>
+                                <input type="number" name="orden" min="0" value="0">
+                            </label>
+                        </div>
+                        <div class="service-form-grid service-form-grid-secondary">
+                            <label>
+                                <span>Imagen desde la web</span>
+                                <input type="url" name="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
+                            </label>
+                            <label>
+                                <span>Ruta static opcional</span>
+                                <input type="text" name="imagen" placeholder="imagenes/servicio.png">
+                            </label>
+                        </div>
+                        <label>
+                            <span>Descripcion</span>
+                            <textarea name="descripcion" rows="3" required></textarea>
+                        </label>
+                        <label class="service-check">
+                            <input type="checkbox" name="activo" checked>
+                            <span>Visible para clientes</span>
+                        </label>
+                        <button type="submit" class="action-btn">Agregar servicio</button>
+                    </form>
+                </section>
+
+                <section class="services-admin-grid">
+                    {% for servicio in servicios %}
+                        <article class="service-admin-card">
+                            <form method="post" action="{% url 'editar_servicio' servicio.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="service-card-header">
+                                    <span class="service-status {% if servicio.activo %}is-active{% endif %}">
+                                        {% if servicio.activo %}Visible{% else %}Oculto{% endif %}
+                                    </span>
+                                    <span class="service-order">Orden {{ servicio.orden }}</span>
+                                </div>
+                                <label>
+                                    <span>Nombre</span>
+                                    <input type="text" name="nombre" value="{{ servicio.nombre }}" required>
+                                </label>
+                                <label>
+                                    <span>Descripcion</span>
+                                    <textarea name="descripcion" rows="4" required>{{ servicio.descripcion }}</textarea>
+                                </label>
+                                <label>
+                                    <span>Imagen desde PC</span>
+                                    <input type="file" name="imagen_archivo" accept="image/*">
+                                </label>
+                                {% if servicio.imagen_archivo %}
+                                    <p class="service-image-current">Archivo actual: {{ servicio.imagen_archivo.name }}</p>
+                                {% endif %}
+                                <label>
+                                    <span>Imagen desde la web</span>
+                                    <input type="url" name="imagen_url" value="{{ servicio.imagen_url }}" placeholder="https://ejemplo.com/imagen.jpg">
+                                </label>
+                                <label>
+                                    <span>Ruta static opcional</span>
+                                    <input type="text" name="imagen" value="{{ servicio.imagen }}">
+                                </label>
+                                <label>
+                                    <span>Orden</span>
+                                    <input type="number" name="orden" min="0" value="{{ servicio.orden }}">
+                                </label>
+                                <label class="service-check">
+                                    <input type="checkbox" name="activo" {% if servicio.activo %}checked{% endif %}>
+                                    <span>Visible para clientes</span>
+                                </label>
+                                <button type="submit" class="secondary-btn">Guardar</button>
+                            </form>
+                            <form method="post" action="{% url 'eliminar_servicio' servicio.id %}" class="service-delete-form">
+                                {% csrf_token %}
+                                <button type="submit" class="danger-btn" onclick="return confirm('Deseas eliminar este servicio?');">Eliminar</button>
+                            </form>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>No hay servicios registrados</h3>
+                            <p>Agrega el primer servicio para publicarlo en la vista del cliente.</p>
+                        </div>
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

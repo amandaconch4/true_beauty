@@ -195,6 +195,36 @@ body {
     min-height: 1rem;
 }
 
+.extra-links {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.35rem;
+}
+
+.forgot-password-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--brown-700);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.forgot-password-link:hover,
+.forgot-password-link:focus-visible {
+    background-color: #f3e4d3;
+    color: #5f4632;
+    transform: translateY(-1px);
+}
+
+.forgot-password-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(180, 141, 103, 0.12);
+}
+
 .button-container {
     display: flex;
     gap: 1rem;
@@ -259,22 +289,4 @@ body {
     .button-container {
         flex-direction: column;
     }
-    .extra-links {
-    color: #691c1c;
-    margin-top: -0.3rem;
-    margin-bottom: 1rem;
-    text-align: right;
-}
-
-.forgot-password-link {
-    color: var(--brown-700);
-    font-size: 0.95rem;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.forgot-password-link:hover {
-    text-decoration: underline;
-    color: var(--beige-500);
-}
 }

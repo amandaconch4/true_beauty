@@ -82,12 +82,9 @@
                         <label for="servicio">Servicio:</label>
                         <select id="servicio" name="servicio" required>
                             <option value="">Selecciona un servicio</option>
-                            <option value="corte" {% if servicio_seleccionado == "corte" %}selected{% endif %}>Corte de pelo</option>
-                            <option value="alisado" {% if servicio_seleccionado == "alisado" %}selected{% endif %}>Alisado</option>
-                            <option value="botox" {% if servicio_seleccionado == "botox" %}selected{% endif %}>Botox capilar</option>
-                            <option value="peinado" {% if servicio_seleccionado == "peinado" %}selected{% endif %}>Peinado</option>
-                            <option value="keratina" {% if servicio_seleccionado == "keratina" %}selected{% endif %}>Tratamiento de keratina</option>
-                            <option value="coloracion" {% if servicio_seleccionado == "coloracion" %}selected{% endif %}>Coloración</option>
+                            {% for servicio in servicios %}
+                                <option value="{{ servicio.codigo }}" {% if servicio_seleccionado == servicio.codigo %}selected{% endif %}>{{ servicio.nombre }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="form-group">

@@ -5,11 +5,12 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
+from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import UsuarioForm
-from .models import Cita, CuidadoRecomendacion, PerfilUsuario, Tratamiento, Usuario, FichaCapilar
+from .models import Cita, CuidadoRecomendacion, PerfilUsuario, Servicio, Tratamiento, Usuario, FichaCapilar
 
 
 def index(request):
@@ -41,7 +42,8 @@ def logout_view(request):
 
 
 def servicios_view(request):
-    return render(request, "servicios.html")
+    servicios = Servicio.objects.filter(activo=True)
+    return render(request, "servicios.html", {'servicios': servicios})
 
 
 def registro(request):
@@ -90,6 +92,7 @@ def agendar_view(request):
     mis_citas = Cita.objects.none() if desde_panel_profesional else Cita.objects.filter(
         cliente=request.user
     ).order_by('fecha', 'hora')
+    servicios = Servicio.objects.filter(activo=True)
     
     if request.method == 'POST':
         servicio = request.POST.get('servicio', '').strip()
@@ -135,6 +138,7 @@ def agendar_view(request):
                 'desde_panel_profesional': desde_panel_profesional,
                 'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
                 'profesionales': Usuario.objects.filter(perfil__rol='profesional', is_active=True).order_by('nombre_completo'),
+                'servicios': servicios,
                 'cliente_seleccionado_id': cliente_id,
                 'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
@@ -161,6 +165,7 @@ def agendar_view(request):
                 'desde_panel_profesional': desde_panel_profesional,
                 'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
                 'profesionales': profesionales,
+                'servicios': servicios,
                 'cliente_seleccionado_id': cliente_id,
                 'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
@@ -203,6 +208,7 @@ def agendar_view(request):
                 'desde_panel_profesional': desde_panel_profesional,
                 'clientes': Usuario.objects.filter(perfil__rol='usuario', is_active=True).order_by('nombre_completo'),
                 'profesionales': profesionales,
+                'servicios': servicios,
                 'cliente_seleccionado_id': cliente_id,
                 'profesional_seleccionado_id': profesional_id,
                 'servicio_seleccionado': servicio,
@@ -220,10 +226,13 @@ def agendar_view(request):
             'coloracion': 'Coloración',
         }
         
+        servicio_obj = servicios.filter(codigo=servicio).first()
+        nombre_servicio = servicio_obj.nombre if servicio_obj else nombres_servicios.get(servicio, servicio)
+
         cita = Cita.objects.create(
             cliente=cliente_asignado,
             profesional=profesional_asignado,
-            servicio=nombres_servicios.get(servicio, servicio),
+            servicio=nombre_servicio,
             fecha=fecha,
             hora=hora,
             estado='pendiente'
@@ -258,6 +267,8 @@ def agendar_view(request):
         'desde_panel_profesional': desde_panel_profesional,
         'profesionales': profesionales,
         'clientes': clientes,
+        'servicios': servicios,
+        'servicio_seleccionado': request.GET.get('servicio', ''),
     })
 
 
@@ -538,6 +549,105 @@ def panel_profesional(request):
         'inicio_semana': inicio_semana,
         'fin_semana': fin_semana,
     })
+
+
+def _es_profesional_interno(user):
+    perfil_usuario = getattr(user, 'perfil', None)
+    return user.is_authenticated and user.is_staff and perfil_usuario and perfil_usuario.rol == 'profesional'
+
+
+@login_required
+def gestionar_servicios(request):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar servicios.')
+        return redirect('profesional')
+
+    servicios = Servicio.objects.all()
+    return render(request, 'gestionar_servicios.html', {
+        'nombre_profesional': request.user.nombre_completo,
+        'servicios': servicios,
+    })
+
+
+@login_required
+@require_POST
+def crear_servicio(request):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar servicios.')
+        return redirect('profesional')
+
+    nombre = request.POST.get('nombre', '').strip()
+    descripcion = request.POST.get('descripcion', '').strip()
+    imagen = request.POST.get('imagen', '').strip()
+    imagen_url = request.POST.get('imagen_url', '').strip()
+    imagen_archivo = request.FILES.get('imagen_archivo')
+    activo = request.POST.get('activo') == 'on'
+    orden = request.POST.get('orden') or 0
+
+    if not nombre or not descripcion:
+        messages.error(request, 'El nombre y la descripcion son obligatorios.')
+        return redirect('gestionar_servicios')
+
+    codigo_base = slugify(nombre)[:45] or 'servicio'
+    codigo = codigo_base
+    contador = 2
+    while Servicio.objects.filter(codigo=codigo).exists():
+        codigo = f'{codigo_base}-{contador}'
+        contador += 1
+
+    Servicio.objects.create(
+        codigo=codigo,
+        nombre=nombre,
+        descripcion=descripcion,
+        imagen=imagen,
+        imagen_url=imagen_url,
+        imagen_archivo=imagen_archivo,
+        activo=activo,
+        orden=orden,
+    )
+    messages.success(request, 'Servicio agregado correctamente.')
+    return redirect('gestionar_servicios')
+
+
+@login_required
+@require_POST
+def editar_servicio(request, id):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar servicios.')
+        return redirect('profesional')
+
+    servicio = get_object_or_404(Servicio, id=id)
+    nombre = request.POST.get('nombre', '').strip()
+    descripcion = request.POST.get('descripcion', '').strip()
+
+    if not nombre or not descripcion:
+        messages.error(request, 'El nombre y la descripcion son obligatorios.')
+        return redirect('gestionar_servicios')
+
+    servicio.nombre = nombre
+    servicio.descripcion = descripcion
+    servicio.imagen = request.POST.get('imagen', '').strip()
+    servicio.imagen_url = request.POST.get('imagen_url', '').strip()
+    if request.FILES.get('imagen_archivo'):
+        servicio.imagen_archivo = request.FILES['imagen_archivo']
+    servicio.activo = request.POST.get('activo') == 'on'
+    servicio.orden = request.POST.get('orden') or 0
+    servicio.save()
+    messages.success(request, 'Servicio actualizado correctamente.')
+    return redirect('gestionar_servicios')
+
+
+@login_required
+@require_POST
+def eliminar_servicio(request, id):
+    if not _es_profesional_interno(request.user):
+        messages.error(request, 'No tienes permiso para gestionar servicios.')
+        return redirect('profesional')
+
+    servicio = get_object_or_404(Servicio, id=id)
+    servicio.delete()
+    messages.success(request, 'Servicio eliminado correctamente.')
+    return redirect('gestionar_servicios')
 
 @login_required
 def vista_cliente_profesi(request):

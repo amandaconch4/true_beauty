@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import PerfilUsuario, Producto, TipoProducto, Usuario
+from .models import PerfilUsuario, Producto, Servicio, TipoProducto, Usuario
 
 
 @admin.register(Usuario)
@@ -19,3 +19,4 @@ class UsuarioAdmin(UserAdmin):
 admin.site.register(PerfilUsuario)
 admin.site.register(TipoProducto)
 admin.site.register(Producto)
+admin.site.register(Servicio)

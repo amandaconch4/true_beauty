@@ -7,13 +7,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Servicios | True Beauty</title>
-    <link rel="stylesheet" href="{% static 'css/servicios.css' %}">
+    <link rel="stylesheet" href="{% static 'css/servicios.css' %}?v=2">
 </head>
 
 <body>
     <header class="top-header">
         <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
-        <a class="login-link" href="{% url 'login' %}">Iniciar sesión</a>
+        <a class="login-link" href="{% url 'login' %}">Iniciar sesion</a>
     </header>
 
     <div class="layout">
@@ -21,7 +21,7 @@
             <ul class="menu">
                 <li><a href="{% url 'index' %}">Inicio</a></li>
                 <li><a href="{% url 'servicios' %}" class="menu-active">Servicios</a></li>
-                <li><a href="#">Recomendación de productos</a></li>
+                <li><a href="#">Recomendacion de productos</a></li>
                 <li><a href="{% url 'agendar_hora' %}">Agenda tu hora</a></li>
             </ul>
         </aside>
@@ -34,48 +34,31 @@
                 </section>
 
                 <section class="servicios-grid">
-                    <article class="servicio-card">
-                        <h3>Corte de pelo</h3>
-                        <img src="{% static 'imagenes/cortepelo.png' %}" alt="Corte de pelo profesional">
-                        <p>Cortes personalizados según tu estilo y tipo de cabello.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
-                    <article class="servicio-card">
-                        <h3>Alisado</h3>
-                        <img src="{% static 'imagenes/alisado.png' %}" alt="Servicio de alisado">
-                        <p>Alisado profesional para un acabado suave y de larga duración.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
-                    <article class="servicio-card">
-                        <h3>Botox capilar</h3>
-                        <img src="{% static 'imagenes/botox.png' %}" alt="Tratamiento de botox capilar">
-                        <p>Tratamiento reparador que revitaliza y reduce el frizz.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
-                    <article class="servicio-card">
-                        <h3>Peinado</h3>
-                        <img src="{% static 'imagenes/peinado.png' %}" alt="Servicio de peinado">
-                        <p>Peinados profesionales para cualquier ocasión y estilo.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
-                    <article class="servicio-card">
-                        <h3>Tratamiento de keratina</h3>
-                        <img src="{% static 'imagenes/keratina.png' %}" alt="Aplicacion de tratamiento de keratina">
-                        <p>Fortalece la fibra capilar y mejora la textura del cabello.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
-                    <article class="servicio-card">
-                        <h3>Coloración</h3>
-                        <img src="{% static 'imagenes/coloracion.png' %}" alt="Servicio de coloracion capilar">
-                        <p>Técnicas de color modernas para un resultado luminoso y natural.</p>
-                        <a href="#" class="btn-agendar">Agendar hora</a>
-                    </article>
+                    {% for servicio in servicios %}
+                        <article class="servicio-card">
+                            <h3>{{ servicio.nombre }}</h3>
+                            {% if servicio.imagen_archivo %}
+                                <img src="{{ servicio.imagen_archivo.url }}" alt="{{ servicio.nombre }}">
+                            {% elif servicio.imagen_url %}
+                                <img src="{{ servicio.imagen_url }}" alt="{{ servicio.nombre }}">
+                            {% elif servicio.imagen %}
+                                <img src="{% static servicio.imagen %}" alt="{{ servicio.nombre }}">
+                            {% endif %}
+                            <p>{{ servicio.descripcion }}</p>
+                            <a href="{% url 'agendar_hora' %}?servicio={{ servicio.codigo }}" class="btn-agendar">Agendar hora</a>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>No hay servicios disponibles</h3>
+                            <p>Pronto publicaremos nuevos servicios para agendar.</p>
+                        </div>
+                    {% endfor %}
                 </section>
             </main>
 
             <footer class="footer-info">
-                <p><strong>Ubicación:</strong> José Zapiola 8054, La Reina</p>
-                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+                <p><strong>Ubicacion:</strong> Jose Zapiola 8054, La Reina</p>
+                <p><strong>Contactanos:</strong> +56 2 26468197</p>
             </footer>
         </div>
     </div>

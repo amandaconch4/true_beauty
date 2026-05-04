@@ -123,6 +123,23 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class Servicio(models.Model):
+    codigo = models.SlugField(max_length=50, unique=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    imagen = models.CharField(max_length=120, blank=True)
+    imagen_url = models.URLField(blank=True)
+    imagen_archivo = models.FileField(upload_to='servicios/', blank=True)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden', 'nombre']
+
+    def __str__(self):
+        return self.nombre
     
 class Cita(models.Model):
     ESTADO_CHOICES = [

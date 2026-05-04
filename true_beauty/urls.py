@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, reverse_lazy
 from core import views
 from core.views import (
@@ -33,6 +35,10 @@ from core.views import (
     crear_profesional,
     editar_profesional,
     eliminar_profesional,
+    gestionar_servicios,
+    crear_servicio,
+    editar_servicio,
+    eliminar_servicio,
     eliminar_cuenta,
     cancelar_cita,
     mis_citas,
@@ -60,6 +66,10 @@ urlpatterns = [
     path('profesional/', profesional_view, name='profesional'),
     path('panel_profesional/', panel_profesional, name='panel_profesional'),
     path('panel-profesional/', panel_profesional, name='panel_profesional_alt'),
+    path('panel-profesional/servicios/', gestionar_servicios, name='gestionar_servicios'),
+    path('panel-profesional/servicios/crear/', crear_servicio, name='crear_servicio'),
+    path('panel-profesional/servicios/<int:id>/editar/', editar_servicio, name='editar_servicio'),
+    path('panel-profesional/servicios/<int:id>/eliminar/', eliminar_servicio, name='eliminar_servicio'),
     
     path('cambiar-password/', profesional_view, name='cambiar_password'),
      path(
@@ -105,5 +115,8 @@ urlpatterns = [
     path('cliente/<int:id>/reservas/', views.reservas_cliente, name='reservas_cliente'),
   
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
