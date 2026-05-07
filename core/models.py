@@ -161,6 +161,7 @@ class Cita(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    notificacion_enviada = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.cliente.nombre_completo} - {self.fecha} {self.hora}"

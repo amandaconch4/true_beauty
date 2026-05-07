@@ -814,11 +814,21 @@ def editar_cita_agenda(request, id):
         messages.error(request, 'Ya tienes otra cita registrada en ese horario.')
         return _redirect_agenda_mes(fecha)
 
+    datos_cita_cambiaron = (
+        cita.cliente_id != cliente.id
+        or cita.servicio != servicio.nombre
+        or cita.fecha != fecha
+        or cita.hora != hora
+        or cita.estado != estado
+    )
+
     cita.cliente = cliente
     cita.servicio = servicio.nombre
     cita.fecha = fecha
     cita.hora = hora
     cita.estado = estado
+    if datos_cita_cambiaron and estado == 'pendiente':
+        cita.notificacion_enviada = False
     cita.save()
     messages.success(request, 'Cita actualizada correctamente.')
     return _redirect_agenda_mes(fecha)
