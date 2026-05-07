@@ -844,6 +844,43 @@ def vista_cliente_profesi(request):
         messages.error(request, 'No tienes permiso para acceder a la vista de clientes.')
         return redirect('profesional')
 
+    # Procesar actualización de cliente
+    if request.method == 'POST':
+        cliente_id = request.POST.get('cliente_id', '').strip()
+        if cliente_id:
+            cliente = get_object_or_404(Usuario, id=cliente_id, perfil__rol='usuario')
+            
+            cliente.nombre_completo = request.POST.get('nombre_completo', '').strip()
+            cliente.email = request.POST.get('email', '').strip()
+            cliente.celular = request.POST.get('celular', '').strip()
+            cliente.direccion = request.POST.get('direccion', '').strip()
+            
+            # Validar campos requeridos
+            errores = []
+            if not cliente.nombre_completo or len(cliente.nombre_completo) < 8:
+                errores.append('El nombre completo debe tener al menos 8 caracteres.')
+            if not cliente.email:
+                errores.append('El correo electrónico es obligatorio.')
+            elif not re.match(r'^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', cliente.email):
+                errores.append('El correo electrónico debe tener un formato válido.')
+            
+            # Verificar email único
+            if Usuario.objects.filter(email=cliente.email).exclude(pk=cliente.pk).exists():
+                errores.append('El correo electrónico ya está en uso.')
+            
+            # Validar celular
+            if not cliente.celular:
+                errores.append('El número de celular es obligatorio.')
+            elif not re.match(r'^\d{9}$', cliente.celular):
+                errores.append('El número de celular debe tener exactamente 9 dígitos.')
+            
+            if errores:
+                for error in errores:
+                    messages.error(request, error)
+            else:
+                cliente.save()
+                messages.success(request, 'Datos del cliente actualizados correctamente.')
+
     query = request.GET.get('q', '').strip()
 
     clientes = Usuario.objects.filter(perfil__rol='usuario').order_by('nombre_completo')
@@ -1086,6 +1123,7 @@ def perfil(request):
     })
 
 
+@login_required
 @login_required
 @require_POST
 def eliminar_cuenta(request):

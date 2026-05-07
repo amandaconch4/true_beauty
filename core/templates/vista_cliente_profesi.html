@@ -89,9 +89,9 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <button type="button" class="secondary-btn" disabled title="Historial no disponible todavía">
+                                        <a href="/cliente/{{ item.id }}/historial/" class="secondary-btn">
                                             Ver historial
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -111,7 +111,8 @@
                                     <p>Consulta su información principal y accede rápidamente a su historial.</p>
                                 </div>
                             </div>
-                            <div class="cliente-card">
+                            <form method="post" action="{% url 'vista_cliente_profesi' %}" class="cliente-card">
+                                {% csrf_token %}
                                 <h3>Cliente</h3>
 
                                 <div class="cliente-info">
@@ -120,8 +121,8 @@
                                         <input
                                             type="text"
                                             id="nombreCliente"
+                                            name="nombre_completo"
                                             value="{{ cliente_detalle.nombre_completo }}"
-                                            readonly
                                         >
                                     </div>
 
@@ -130,8 +131,8 @@
                                         <input
                                             type="text"
                                             id="celularCliente"
+                                            name="celular"
                                             value="{{ cliente_detalle.celular }}"
-                                            readonly
                                         >
                                     </div>
 
@@ -140,33 +141,45 @@
                                         <input
                                             type="email"
                                             id="correoCliente"
+                                            name="email"
                                             value="{{ cliente_detalle.email }}"
-                                            readonly
+                                        >
+                                    </div>
+
+                                    <div class="info-row">
+                                        <label for="direccionCliente">Dirección</label>
+                                        <input
+                                            type="text"
+                                            id="direccionCliente"
+                                            name="direccion"
+                                            value="{{ cliente_detalle.direccion|default:'' }}"
                                         >
                                     </div>
                                 </div>
 
+                                <input type="hidden" name="cliente_id" value="{{ cliente_detalle.id }}">
+
                                 <div class="cliente-actions">
-                                    <button type="button" class="secondary-btn">Editar</button>
+                                    <button type="submit" class="secondary-btn">Guardar Cambios</button>
                                 </div>
+                            </form>
+                            <div class="cliente-opciones">
+                                <a href="{% url 'ficha_capilar' cliente_detalle.id %}" class="opcion-card">
+                                    Ficha técnica
+                                </a>
+
+                                <a href="{% url 'cuidados_cliente' cliente_detalle.id %}" class="opcion-card">
+                                    Cuidados y recomendaciones
+                                </a>
+
+                                <a href="{% url 'historial_cliente' cliente_detalle.id %}" class="opcion-card">
+                                    Historial
+                                </a>
+
+                                <a href="{% url 'reservas_cliente' cliente_detalle.id %}" class="opcion-card">
+                                    Reservas
+                                </a>
                             </div>
-                                <div class="cliente-opciones">
-                                    <a href="{% url 'ficha_capilar' cliente_detalle.id %}" class="opcion-card">
-                                        Ficha técnica
-                                    </a>
-
-                                    <a href="{% url 'cuidados_cliente' cliente_detalle.id %}" class="opcion-card">
-                                        Cuidados y recomendaciones
-                                    </a>
-
-                                    <a href="{% url 'historial_cliente' cliente_detalle.id %}" class="opcion-card">
-                                        Historial
-                                    </a>
-
-                                    <a href="{% url 'reservas_cliente' cliente_detalle.id %}" class="opcion-card">
-                                        Reservas
-                                    </a>
-                                </div>
                         {% elif query %}
                             <div class="empty-state detalle-vacio">
                                 No se encontró un cliente con ese nombre.

@@ -1,0 +1,181 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cliente | True Beauty</title>
+    <link rel="stylesheet" href="{% static 'css/mi_perfil.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <header class="top-header">
+        <div class="top-header__bar">
+            <h1 class="logo"><a href="{% url 'index' %}">True Beauty</a></h1>
+            <div class="top-header__actions">
+                <a href="{% url 'vista_cliente_profesi' %}" class="login-link">Volver</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'panel_profesional' %}">Dashboard</a></li>
+                <li><a href="{% url 'vista_cliente_profesi' %}" class="menu-active">Clientes</a></li>
+                <li><a href="{% url 'gestionar_servicios' %}">Servicios</a></li>
+                <li><a href="{% url 'mi_agenda_profesional' %}">Mi agenda</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <div class="perfil-wrapper">
+                <section class="perfil-card">
+                    <h2><i class="fas fa-user-circle"></i> Editar Cliente: {{ cliente.nombre_completo }}</h2>
+
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form id="editarClienteForm" method="post" action="{% url 'editar_cliente' cliente.id %}">
+                        {% csrf_token %}
+
+                        <div class="form-section">
+                            <h3>Información del Cliente</h3>
+                            
+                            <div class="form-group">
+                                <label for="nombre_completo">Nombre Completo *</label>
+                                <input type="text" id="nombre_completo" name="nombre_completo" 
+                                       value="{{ cliente.nombre_completo }}" required>
+                                <span class="error-message" id="nombre-error"></span>
+                                <div class="requisitos" id="nombre-requisitos">
+                                    <ul>
+                                        <li id="req-nombre-length">Al menos 8 caracteres</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico *</label>
+                                <input type="email" id="email" name="email" 
+                                       value="{{ cliente.email }}" required>
+                                <span class="error-message" id="email-error"></span>
+                                <div class="requisitos" id="email-requisitos">
+                                    <ul>
+                                        <li id="req-email-formato">Formato válido (usuario@dominio.com)</li>
+                                        <li id="req-email-espacios">Sin espacios</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="celular">Celular *</label>
+                                <input type="tel" id="celular" name="celular" 
+                                       value="{{ cliente.celular }}" maxlength="9" required>
+                                <span class="error-message" id="celular-error"></span>
+                                <div class="requisitos" id="celular-requisitos">
+                                    <ul>
+                                        <li id="req-celular-digits">9 dígitos numéricos</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" id="direccion" name="direccion" 
+                                       value="{{ cliente.direccion|default:'' }}">
+                                <span class="error-message" id="direccion-error"></span>
+                            </div>
+
+                            <div class="form-group readonly">
+                                <label for="username">Nombre de Usuario</label>
+                                <input type="text" id="username" value="{{ cliente.username }}" readonly disabled>
+                                <small class="field-note">No editable</small>
+                            </div>
+                        </div>
+
+                        <div class="button-container">
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'vista_cliente_profesi' %}" class="cancel-btn">Cancelar</a>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <footer class="footer-info">
+                <p><strong>Ubicación:</strong> Jose Zapiola 8054, La Reina</p>
+                <p><strong>Contáctanos:</strong> +56 2 26468197</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Validación en tiempo real del nombre
+        const nombreInput = document.getElementById('nombre_completo');
+        const reqNombreLength = document.getElementById('req-nombre-length');
+        
+        if (nombreInput) {
+            nombreInput.addEventListener('input', function() {
+                const length = this.value.length;
+                if (length >= 8) {
+                    reqNombreLength.classList.add('done');
+                } else {
+                    reqNombreLength.classList.remove('done');
+                }
+            });
+        }
+
+        // Validación en tiempo real del email
+        const emailInput = document.getElementById('email');
+        const reqEmailFormato = document.getElementById('req-email-formato');
+        const reqEmailEspacios = document.getElementById('req-email-espacios');
+        
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                const email = this.value;
+                const formatoValido = /^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+                const sinEspacios = !/\s/.test(email);
+                
+                if (formatoValido) {
+                    reqEmailFormato.classList.add('done');
+                } else {
+                    reqEmailFormato.classList.remove('done');
+                }
+                
+                if (sinEspacios) {
+                    reqEmailEspacios.classList.add('done');
+                } else {
+                    reqEmailEspacios.classList.remove('done');
+                }
+            });
+        }
+
+        // Validación en tiempo real del celular
+        const celularInput = document.getElementById('celular');
+        const reqCelularDigits = document.getElementById('req-celular-digits');
+        
+        if (celularInput) {
+            celularInput.addEventListener('input', function() {
+                const celular = this.value;
+                const esValido = /^\d{9}$/.test(celular);
+                
+                if (esValido) {
+                    reqCelularDigits.classList.add('done');
+                } else {
+                    reqCelularDigits.classList.remove('done');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -223,7 +223,7 @@
                                             <td>{{ cliente.ultimo_tratamiento }}</td>
                                             <td>{{ cliente.fecha }}</td>
                                             <td>
-                                                <a href="{% url 'historial_cliente' cliente.id %}" class="secondary-btn">Ver historial</a>
+                                                <a href="/cliente/{{ cliente.id }}/historial/" class="secondary-btn">Ver historial</a>
                                             </td>
                                         </tr>
                                     {% endfor %}
