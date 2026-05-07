@@ -41,10 +41,14 @@ INSTALLED_APPS = [
     'core'
 ]
 
-# CORREO EN MODO DESARROLLO / SIMULACIÓN
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'tmp' / 'app-messages'
-DEFAULT_FROM_EMAIL = 'no-reply@truebeauty.com'
+# CORREO REAL CON GMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'true.beauty.salon.3.2.1@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 MIDDLEWARE = [
